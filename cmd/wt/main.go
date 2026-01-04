@@ -1,7 +1,51 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"github.com/spf13/cobra"
+	"github.com/trungung/wt/internal/core"
+	"github.com/trungung/wt/internal/git"
+)
+
+var fromBase string
+
+var rootCmd = &cobra.Command{
+	Use:   "wt [branch]",
+	Short: "wt is a branch-centric git worktree helper",
+	Long:  `A fast, branch-addressable git worktree manager.`,
+	Args:  cobra.MaximumNArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			// wt: list worktrees
+			worktrees, err := git.ListWorktrees()
+			if err != nil {
+				return err
+			}
+			for _, wt := range worktrees {
+				fmt.Printf("%s\t%s\n", wt.Branch, wt.Path)
+			}
+			return nil
+		}
+
+		// wt <branch>: ensure worktree
+		branch := args[0]
+		path, err := core.EnsureWorktree(branch, fromBase)
+		if err != nil {
+			return err
+		}
+		fmt.Println(path)
+		return nil
+	},
+}
+
+func init() {
+	rootCmd.Flags().StringVarP(&fromBase, "from", "f", "", "base branch to create from")
+}
 
 func main() {
-	fmt.Println("wt: worktree helper (v1)")
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
