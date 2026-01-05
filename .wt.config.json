@@ -1,0 +1,7 @@
+{
+  "defaultBranch": "main",
+  "worktreePathTemplate": "$REPO_PATH.wt",
+  "worktreeCopyPatterns": [],
+  "postCreateCmd": [],
+  "deleteBranchWithWorktree": true
+}
