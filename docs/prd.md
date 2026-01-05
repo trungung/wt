@@ -40,16 +40,13 @@
 
 Default branch is derived from Git (no provider APIs).
 
-**Detection order (v1):**
+**Detection rules (v1):**
 
 1. Config override: `defaultBranch` in `.wt.config.json` (if present)
-2. Remote default branch via `refs/remotes/origin/HEAD` symbolic ref target (preferred)
-3. Heuristic fallback:
-   - if local `main` exists → `main`
-   - else if local `master` exists → `master`
-   - else **ERROR** with guidance (fetch or set config override)
+2. Remote default branch via `refs/remotes/origin/HEAD` symbolic ref target (STRICT)
+3. If both above missing: **ERROR** (manual input required during `init`)
 
-`wt health` must warn when `origin/HEAD` is missing and a fallback/override is being used.
+`wt health` must error when `origin/HEAD` is missing and no config override is set.
 
 ### 2.3 Worktree base path & mapping
 

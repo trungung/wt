@@ -91,24 +91,14 @@ func GetRepoRoot() (string, error) {
 
 // GetDefaultBranch returns the default branch name (e.g., main or master)
 func GetDefaultBranch() (string, error) {
-	// 1. Check remote default branch
+	// Only check remote default branch via origin/HEAD
 	out, err := exec.Command("git", "symbolic-ref", "refs/remotes/origin/HEAD").Output()
 	if err == nil {
 		parts := strings.Split(strings.TrimSpace(string(out)), "/")
 		return parts[len(parts)-1], nil
 	}
 
-	// 2. Heuristic: check if 'main' exists locally
-	if exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/main").Run() == nil {
-		return "main", nil
-	}
-
-	// 3. Heuristic: check if 'master' exists locally
-	if exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/master").Run() == nil {
-		return "master", nil
-	}
-
-	return "", fmt.Errorf("could not determine default branch (checked origin/HEAD, main, master)")
+	return "", fmt.Errorf("could not determine default branch via origin/HEAD")
 }
 
 // BranchExists checks if a branch exists locally or on origin

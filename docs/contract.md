@@ -24,8 +24,8 @@ A fast, branch-centric `git worktree` helper that makes worktrees feel “branch
 - `wt exec <branch> -- <command...>` — execute inside worktree; default branch runs in `$REPO_PATH`.
 - `wt remove [branch] [--force]` — remove worktree; warn/confirm if dirty.
 - `wt prune [--dry-run] [--force] [--fetch]` — prune worktrees merged into default branch; refuse dirty unless forced.
-- `wt init [--yes]` — create config interactively or with defaults.
-- `wt health` — validate config + environment; warn about silent skips; error on serious issues.
+- `wt init [--yes]` — create config interactively or with defaults; requires manual input if `origin/HEAD` missing.
+- `wt health` — validate config + environment; error if default branch cannot be determined.
 
 ### Config
 

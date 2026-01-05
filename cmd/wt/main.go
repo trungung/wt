@@ -202,19 +202,32 @@ var initCmd = &cobra.Command{
 			return nil
 		}
 
+		detected, err := git.GetDefaultBranch()
+		if err != nil && initYes {
+			return fmt.Errorf("could not auto-detect default branch for --yes: %w", err)
+		}
+
 		cfg := &config.Config{
-			WorktreePathTemplate: "$REPO_PATH.wt",
+			DefaultBranch:            detected,
+			WorktreePathTemplate:     "$REPO_PATH.wt",
+			WorktreeCopyPatterns:     []string{},
+			PostCreateCmd:            []string{},
+			DeleteBranchWithWorktree: false,
 		}
 
 		if !initYes {
 			tap.Intro("Initializing .wt.config.json")
 
-			detected, _ := git.GetDefaultBranch()
-			cfg.DefaultBranch = ui.Prompt("Default branch", detected)
-			cfg.WorktreePathTemplate = ui.Prompt("Worktree path template", "$REPO_PATH.wt")
+			if err != nil {
+				fmt.Printf("Warning: %v\n", err)
+				cfg.DefaultBranch = ui.PromptRequired("Default branch")
+			} else {
+				cfg.DefaultBranch = ui.Prompt("Default branch", cfg.DefaultBranch)
+			}
+			cfg.WorktreePathTemplate = ui.Prompt("Worktree path template", cfg.WorktreePathTemplate)
 			cfg.WorktreeCopyPatterns = ui.PromptList("Worktree copy patterns")
 			cfg.PostCreateCmd = ui.PromptList("Post-create commands")
-			cfg.DeleteBranchWithWorktree = ui.PromptBool("Delete branch with worktree", false)
+			cfg.DeleteBranchWithWorktree = ui.PromptBool("Delete branch with worktree", cfg.DeleteBranchWithWorktree)
 
 			tap.Outro("Configuration generated")
 		}

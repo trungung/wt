@@ -8,11 +8,11 @@ import (
 )
 
 type Config struct {
-	DefaultBranch            string   `json:"defaultBranch,omitempty"`
-	WorktreePathTemplate     string   `json:"worktreePathTemplate,omitempty"`
-	WorktreeCopyPatterns     []string `json:"worktreeCopyPatterns,omitempty"`
-	PostCreateCmd            []string `json:"postCreateCmd,omitempty"`
-	DeleteBranchWithWorktree bool     `json:"deleteBranchWithWorktree,omitempty"`
+	DefaultBranch            string   `json:"defaultBranch"`
+	WorktreePathTemplate     string   `json:"worktreePathTemplate"`
+	WorktreeCopyPatterns     []string `json:"worktreeCopyPatterns"`
+	PostCreateCmd            []string `json:"postCreateCmd"`
+	DeleteBranchWithWorktree bool     `json:"deleteBranchWithWorktree"`
 }
 
 func GetConfigPath(repoRoot string) string {

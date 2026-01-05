@@ -37,6 +37,22 @@ func TestIntegration(t *testing.T) {
 	runGit(t, repoPath, "add", ".")
 	runGit(t, repoPath, "commit", "-m", "initial commit")
 
+	// 2.1 Mock origin/HEAD for tests that rely on GetDefaultBranch auto-detection
+	runGit(t, repoPath, "update-ref", "refs/remotes/origin/main", "HEAD")
+	runGit(t, repoPath, "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main")
+
+	// 2.2 Pre-create config
+	configContent := `{
+		"defaultBranch": "main",
+		"worktreePathTemplate": "$REPO_PATH.wt",
+		"worktreeCopyPatterns": [],
+		"postCreateCmd": [],
+		"deleteBranchWithWorktree": false
+	}`
+	if err := os.WriteFile(filepath.Join(repoPath, ".wt.config.json"), []byte(configContent), 0644); err != nil {
+		t.Fatal(err)
+	}
+
 	// 3. Build the 'wt' binary
 	binPath := filepath.Join(tempDir, "wt")
 	testDir, _ := os.Getwd()
@@ -106,6 +122,7 @@ func TestIntegration(t *testing.T) {
 	// Test 5: Config and PostCreateCmd
 	t.Run("Config and PostCreateCmd", func(t *testing.T) {
 		configContent := `{
+			"defaultBranch": "main",
 			"postCreateCmd": ["touch created.txt"],
 			"worktreeCopyPatterns": ["README.md"]
 		}`
@@ -144,6 +161,7 @@ func TestIntegration(t *testing.T) {
 	// Test 8: Remove worktree with branch deletion
 	t.Run("Remove worktree with branch deletion", func(t *testing.T) {
 		configContent := `{
+			"defaultBranch": "main",
 			"deleteBranchWithWorktree": true
 		}`
 		if err := os.WriteFile(filepath.Join(repoPath, ".wt.config.json"), []byte(configContent), 0644); err != nil {

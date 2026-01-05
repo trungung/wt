@@ -20,6 +20,19 @@ func Prompt(label string, defaultVal string) string {
 	})
 }
 
+// PromptRequired uses tap.Text to get user input and requires it to be non-empty.
+func PromptRequired(label string) string {
+	return tap.Text(context.Background(), tap.TextOptions{
+		Message: label,
+		Validate: func(s string) error {
+			if strings.TrimSpace(s) == "" {
+				return fmt.Errorf("this field is required")
+			}
+			return nil
+		},
+	})
+}
+
 // PromptBool uses tap.Confirm to get a boolean input.
 func PromptBool(label string, defaultVal bool) bool {
 	return tap.Confirm(context.Background(), tap.ConfirmOptions{
@@ -53,7 +66,7 @@ func PromptList(label string) []string {
 	})
 
 	if strings.TrimSpace(input) == "" {
-		return nil
+		return []string{}
 	}
 
 	parts := strings.Split(input, ",")

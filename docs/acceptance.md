@@ -59,16 +59,16 @@
 
 ## I) Init
 
-- I1: `wt init --yes` creates `$REPO_PATH/.wt.config.json` with defaults if missing.
-- I2: `wt init` (interactive) creates the file; on cancellation it leaves no partial/invalid file.
+- I1: `wt init --yes` creates `$REPO_PATH/.wt.config.json` with defaults if missing (fails if `origin/HEAD` cannot be detected).
+- I2: `wt init` (interactive) requires manual input for default branch if `origin/HEAD` is missing; on cancellation it leaves no partial/invalid file.
 - I3: If config exists, `wt init` does not overwrite and exits 0 printing the path.
 
 ## J) Health
 
 - J1: If `.wt.config.json` exists but is invalid JSON, `wt health` reports ERROR and exits non-zero.
 - J2: Unknown config keys produce WARN (not ERROR).
-- J3: If default branch cannot be determined and no `defaultBranch` override exists, `wt health` reports ERROR and exits non-zero.
-- J4: If `origin/HEAD` is missing and fallback/override is used, `wt health` warns.
+- J3: If default branch cannot be determined (no `origin/HEAD`) and no `defaultBranch` override exists, `wt health` reports ERROR and exits non-zero.
+- J4: `wt health` reports OK if `defaultBranch` is configured or `origin/HEAD` is present.
 - J5: If copy patterns are configured but cannot be applied, `wt health` warns.
 - J6: If two branches collide to the same sanitized path leaf, `wt health` reports ERROR.
 
