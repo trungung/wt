@@ -28,6 +28,24 @@ func PromptBool(label string, defaultVal bool) bool {
 	})
 }
 
+// PromptSelect uses tap.Select to pick from a list of options.
+func PromptSelect[T any](label string, options []tap.SelectOption[T]) T {
+	return tap.Select(context.Background(), tap.SelectOptions[T]{
+		Message: label,
+		Options: options,
+	})
+}
+
+// PromptAutocomplete uses tap.Autocomplete to get user input with suggestions.
+func PromptAutocomplete(label string, suggest func(string) []string) string {
+	return tap.Autocomplete(context.Background(), tap.AutocompleteOptions{
+		Message:     label,
+		Placeholder: "Start typing to filter...",
+		Suggest:     suggest,
+		MaxResults:  10,
+	})
+}
+
 // PromptList uses tap.Text and splits by comma to return a list.
 func PromptList(label string) []string {
 	input := tap.Text(context.Background(), tap.TextOptions{

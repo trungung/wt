@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/trungung/wt/internal/config"
@@ -103,20 +104,39 @@ var removeCmd = &cobra.Command{
 				return fmt.Errorf("no other worktrees to remove")
 			}
 
-			fmt.Println("Select a worktree to remove:")
+			var branches []string
 			for i, wt := range worktrees {
 				if i == 0 {
 					continue // Skip main worktree
 				}
-				fmt.Printf("[%d] %s (%s)\n", i, wt.Branch, wt.Path)
+				branches = append(branches, wt.Branch)
 			}
-			fmt.Print("Selection: ")
-			var choice int
-			_, err = fmt.Scanf("%d", &choice)
-			if err != nil || choice < 1 || choice >= len(worktrees) {
-				return fmt.Errorf("invalid selection")
+
+			branch = ui.PromptAutocomplete("Select a worktree to remove (Tab to complete)", func(input string) []string {
+				var filtered []string
+				for _, b := range branches {
+					if strings.Contains(strings.ToLower(b), strings.ToLower(input)) {
+						filtered = append(filtered, b)
+					}
+				}
+				return filtered
+			})
+
+			if branch == "" {
+				return fmt.Errorf("no worktree selected")
 			}
-			branch = worktrees[choice].Branch
+
+			// Validate that the returned branch actually exists as a worktree
+			found := false
+			for _, b := range branches {
+				if b == branch {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("invalid worktree selected: %s", branch)
+			}
 		} else {
 			branch = args[0]
 		}
