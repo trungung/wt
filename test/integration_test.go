@@ -39,8 +39,10 @@ func TestIntegration(t *testing.T) {
 
 	// 3. Build the 'wt' binary
 	binPath := filepath.Join(tempDir, "wt")
+	testDir, _ := os.Getwd()
+	projectRoot := filepath.Dir(testDir)
 	buildCmd := exec.Command("go", "build", "-o", binPath, "./cmd/wt")
-	buildCmd.Dir = "/Users/trungung/Code/trungung/wt" // Path to the project root
+	buildCmd.Dir = projectRoot
 	if out, err := buildCmd.CombinedOutput(); err != nil {
 		t.Fatalf("failed to build binary: %s: %v", string(out), err)
 	}
@@ -184,6 +186,63 @@ func TestIntegration(t *testing.T) {
 		}
 		if !strings.Contains(string(out), "collision") {
 			t.Errorf("expected error message to contain 'collision', got: %s", string(out))
+		}
+	})
+
+	// Test 10: Prune worktrees
+	t.Run("Prune worktrees", func(t *testing.T) {
+		// 1. Create a merged branch
+		runGit(t, repoPath, "checkout", "-b", "merged-branch")
+		if err := os.WriteFile(filepath.Join(repoPath, "merged.txt"), []byte("merged"), 0644); err != nil {
+			t.Fatal(err)
+		}
+		runGit(t, repoPath, "add", "merged.txt")
+		runGit(t, repoPath, "commit", "-m", "merge me")
+		runGit(t, repoPath, "checkout", "main")
+		runGit(t, repoPath, "merge", "merged-branch")
+
+		// 2. Create an unmerged branch
+		runGit(t, repoPath, "checkout", "-b", "unmerged-branch")
+		if err := os.WriteFile(filepath.Join(repoPath, "unmerged.txt"), []byte("not merged"), 0644); err != nil {
+			t.Fatal(err)
+		}
+		runGit(t, repoPath, "add", "unmerged.txt")
+		runGit(t, repoPath, "commit", "-m", "don't merge me")
+		runGit(t, repoPath, "checkout", "main")
+
+		// 3. Ensure worktrees exist for both
+		runWt("merged-branch")
+		runWt("unmerged-branch")
+
+		// 4. Test dry-run
+		out := runWt("prune", "--dry-run")
+		if !strings.Contains(out, "merged-branch") {
+			t.Errorf("expected dry-run to contain 'merged-branch', got: %s", out)
+		}
+		if strings.Contains(out, "unmerged-branch") {
+			t.Errorf("expected dry-run NOT to contain 'unmerged-branch', got: %s", out)
+		}
+
+		// 5. Test actual prune
+		runWt("prune", "--force")
+
+		// 6. Verify worktree removed
+		cmd := exec.Command("git", "worktree", "list")
+		cmd.Dir = repoPath
+		wtListOut, _ := cmd.CombinedOutput()
+		wtList := string(wtListOut)
+		if strings.Contains(wtList, "[merged-branch]") {
+			t.Errorf("expected merged-branch worktree to be removed, but it's still in list")
+		}
+		if !strings.Contains(wtList, "[unmerged-branch]") {
+			t.Errorf("expected unmerged-branch worktree to remain, but it's gone")
+		}
+
+		// 7. Verify branch deletion (since deleteBranchWithWorktree is true from previous test)
+		cmd = exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/merged-branch")
+		cmd.Dir = repoPath
+		if err := cmd.Run(); err == nil {
+			t.Errorf("merged-branch should have been deleted")
 		}
 	})
 }

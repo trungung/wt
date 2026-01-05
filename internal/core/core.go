@@ -255,6 +255,94 @@ func RemoveWorktree(branch string, force bool, confirmFn func(string) bool) erro
 	return nil
 }
 
+type PruneOptions struct {
+	DryRun bool
+	Force  bool
+	Fetch  bool
+}
+
+// PruneWorktrees removes worktrees whose branches are merged into the default branch
+func PruneWorktrees(opts PruneOptions) (int, []string, error) {
+	root, err := git.GetRepoRoot()
+	if err != nil {
+		return 0, nil, err
+	}
+
+	cfg, err := config.LoadConfig(root)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	if opts.Fetch {
+		_ = git.FetchPrune()
+	}
+
+	defaultBranch := cfg.DefaultBranch
+	if defaultBranch == "" {
+		defaultBranch, err = git.GetDefaultBranch()
+		if err != nil {
+			return 0, nil, err
+		}
+	}
+
+	merged, err := git.GetMergedBranches(defaultBranch)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	mergedSet := make(map[string]bool)
+	for _, b := range merged {
+		mergedSet[b] = true
+	}
+
+	worktrees, err := git.ListWorktrees()
+	if err != nil {
+		return 0, nil, err
+	}
+
+	mainBranch, _ := git.GetCurrentBranchInMainWorktree(root)
+
+	var candidates []string
+	prunedCount := 0
+
+	for i, wt := range worktrees {
+		if i == 0 {
+			continue // Skip main worktree
+		}
+		if wt.Branch == "(detached)" || wt.Branch == defaultBranch {
+			continue
+		}
+
+		if mergedSet[wt.Branch] {
+			dirty, err := git.IsDirty(wt.Path)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: failed to check dirty status for %s: %v\n", wt.Branch, err)
+				continue
+			}
+
+			if dirty && !opts.Force {
+				fmt.Fprintf(os.Stderr, "Skipping %s: worktree is dirty (use --force to prune)\n", wt.Branch)
+				continue
+			}
+
+			if opts.DryRun {
+				candidates = append(candidates, wt.Branch)
+			} else {
+				if err := git.RemoveWorktree(wt.Path, opts.Force); err != nil {
+					fmt.Fprintf(os.Stderr, "Error: failed to remove worktree for %s: %v\n", wt.Branch, err)
+					continue
+				}
+				if cfg.DeleteBranchWithWorktree && wt.Branch != mainBranch {
+					_ = git.DeleteBranch(wt.Branch)
+				}
+				prunedCount++
+			}
+		}
+	}
+
+	return prunedCount, candidates, nil
+}
+
 func applyPostCreation(repoRoot, targetPath string, cfg *config.Config, isNewBranch bool, branch string) error {
 	// 1. Copy patterns
 	for _, pattern := range cfg.WorktreeCopyPatterns {

@@ -26,17 +26,58 @@ func ListWorktrees() ([]Worktree, error) {
 	lines := strings.Split(string(out), "\n")
 	for _, line := range lines {
 		if strings.HasPrefix(line, "worktree ") {
-			current.Path = strings.TrimPrefix(line, "worktree ")
+			if current.Path != "" {
+				// Flush previous worktree if it didn't have a branch (detached)
+				if current.Branch == "" {
+					current.Branch = "(detached)"
+				}
+				worktrees = append(worktrees, current)
+			}
+			current = Worktree{
+				Path: strings.TrimPrefix(line, "worktree "),
+			}
 		} else if strings.HasPrefix(line, "branch ") {
 			ref := strings.TrimPrefix(line, "branch ")
-			// In porcelain mode, branch is full ref, e.g., refs/heads/main or refs/heads/feature/x
 			current.Branch = strings.TrimPrefix(ref, "refs/heads/")
-			worktrees = append(worktrees, current)
-			current = Worktree{}
 		}
+	}
+	// Final flush
+	if current.Path != "" {
+		if current.Branch == "" {
+			current.Branch = "(detached)"
+		}
+		worktrees = append(worktrees, current)
 	}
 
 	return worktrees, nil
+}
+
+// FetchPrune runs git fetch --prune
+func FetchPrune() error {
+	var stderr bytes.Buffer
+	cmd := exec.Command("git", "fetch", "--prune")
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("git fetch --prune failed: %s: %w", stderr.String(), err)
+	}
+	return nil
+}
+
+// GetMergedBranches returns a list of branches merged into the given base
+func GetMergedBranches(base string) ([]string, error) {
+	out, err := exec.Command("git", "branch", "--merged", base, "--format=%(refname:short)").Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get merged branches: %w", err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	var merged []string
+	for _, line := range lines {
+		if b := strings.TrimSpace(line); b != "" {
+			merged = append(merged, b)
+		}
+	}
+	return merged, nil
 }
 
 // GetRepoRoot returns the absolute path to the git repository root
