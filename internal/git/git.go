@@ -50,18 +50,31 @@ func GetRepoRoot() (string, error) {
 
 // GetDefaultBranch returns the default branch name (e.g., main or master)
 func GetDefaultBranch() (string, error) {
+	// 1. Check remote default branch
 	out, err := exec.Command("git", "symbolic-ref", "refs/remotes/origin/HEAD").Output()
 	if err == nil {
 		parts := strings.Split(strings.TrimSpace(string(out)), "/")
 		return parts[len(parts)-1], nil
 	}
 
-	// Fallback to local check if remote isn't set
-	out, err = exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
-	if err != nil {
+	// 2. Heuristic: check if 'main' exists locally
+	if exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/main").Run() == nil {
 		return "main", nil
 	}
-	return strings.TrimSpace(string(out)), nil
+
+	// 3. Heuristic: check if 'master' exists locally
+	if exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/master").Run() == nil {
+		return "master", nil
+	}
+
+	return "", fmt.Errorf("could not determine default branch (checked origin/HEAD, main, master)")
+}
+
+// BranchExists checks if a branch exists locally or on origin
+func BranchExists(branch string) (bool, bool) {
+	local := exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/"+branch).Run() == nil
+	remote := exec.Command("git", "show-ref", "--verify", "--quiet", "refs/remotes/origin/"+branch).Run() == nil
+	return local, remote
 }
 
 // CreateWorktree creates a new worktree at the specified path for the given branch

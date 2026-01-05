@@ -58,6 +58,23 @@ func EnsureWorktree(branch, base string) (string, error) {
 		return "", fmt.Errorf("failed to create worktree root: %w", err)
 	}
 
+	// Resolve branch source if it doesn't exist locally
+	local, remote := git.BranchExists(branch)
+	isNewBranch := !local && !remote
+
+	if isNewBranch {
+		if base == "" {
+			if defaultBranch == "" {
+				return "", fmt.Errorf("branch %s not found and no default branch detected. Use --from", branch)
+			}
+			base = defaultBranch
+		}
+	} else {
+		// Branch exists (locally or on origin).
+		// We ignore 'base' because we are checking out an existing reference.
+		base = ""
+	}
+
 	if err := git.CreateWorktree(targetPath, branch, base); err != nil {
 		return "", err
 	}
