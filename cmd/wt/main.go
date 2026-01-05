@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -42,6 +43,12 @@ var rootCmd = &cobra.Command{
 		branch := args[0]
 		path, err := core.EnsureWorktree(branch, fromBase)
 		if err != nil {
+			var rbErr *core.RollbackError
+			if errors.As(err, &rbErr) {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", rbErr.OriginalErr)
+				fmt.Fprintf(os.Stderr, "Rollback status: %s\n", rbErr.RollbackStatus)
+				os.Exit(1)
+			}
 			return err
 		}
 		fmt.Println(path)

@@ -68,6 +68,17 @@ func FindWorktree(branch string) (string, error) {
 	return "", fmt.Errorf("no worktree exists for branch %q", branch)
 }
 
+// RollbackError represents a failure that triggered a rollback attempt.
+type RollbackError struct {
+	OriginalErr    error
+	RollbackErr    error
+	RollbackStatus string
+}
+
+func (e *RollbackError) Error() string {
+	return fmt.Sprintf("%v (rollback: %s)", e.OriginalErr, e.RollbackStatus)
+}
+
 // EnsureWorktree ensures a worktree exists for the given branch and returns its path
 func EnsureWorktree(branch, base string) (string, error) {
 	// 1. Try to find existing worktree first
@@ -143,11 +154,31 @@ func EnsureWorktree(branch, base string) (string, error) {
 	// Success from here: attempt post-creation steps
 	if err := applyPostCreation(root, targetPath, cfg, isNewBranch, branch); err != nil {
 		// Rollback on failure
-		_ = git.RemoveWorktree(targetPath, true)
-		if isNewBranch {
-			_ = git.DeleteBranch(branch)
+		status := "started"
+		rbErr := git.RemoveWorktree(targetPath, true)
+		if rbErr != nil {
+			status = fmt.Sprintf("failed to remove worktree: %v", rbErr)
+		} else {
+			status = "worktree removed"
+			if isNewBranch {
+				rbErr = git.DeleteBranch(branch)
+				if rbErr != nil {
+					status += fmt.Sprintf(", failed to delete branch: %v", rbErr)
+				} else {
+					status += ", branch deleted"
+				}
+			}
 		}
-		return "", fmt.Errorf("post-creation failed (rolled back): %w", err)
+
+		if status == "worktree removed" || status == "worktree removed, branch deleted" {
+			status = "succeeded (" + status + ")"
+		}
+
+		return "", &RollbackError{
+			OriginalErr:    err,
+			RollbackErr:    rbErr,
+			RollbackStatus: status,
+		}
 	}
 
 	return targetPath, nil

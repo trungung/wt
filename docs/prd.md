@@ -198,9 +198,9 @@ Rollback does not undo external side effects performed by postCreate commands ou
 **Behavior:**
 
 - Requires `--` delimiter.
-- Resolves target directory:
+- resolves target directory:
   - default branch → `$REPO_PATH`
-  - other branch → ensure worktree exists (same semantics as `wt <branch>`)
+  - other branch → resolve existing worktree; **fail if it does not exist**.
 - Execute `<command...>` with working directory set to resolved path.
 - Inherit stdin/stdout/stderr.
 - Exit code equals executed command’s exit code.

@@ -307,6 +307,54 @@ func TestIntegration(t *testing.T) {
 		// Restore valid config
 		runWt("init", "--yes")
 	})
+
+	// Test 13: Atomic rollback
+	t.Run("Atomic rollback", func(t *testing.T) {
+		// 1. Rollback on new branch (branch + worktree should be deleted)
+		configContent := `{
+			"defaultBranch": "main",
+			"postCreateCmd": ["false"]
+		}`
+		if err := os.WriteFile(filepath.Join(repoPath, ".wt.config.json"), []byte(configContent), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		cmd := exec.Command(binPath, "feature/rollback-new")
+		cmd.Dir = repoPath
+		out, err := cmd.CombinedOutput()
+		if err == nil {
+			t.Errorf("expected failure for feature/rollback-new, but succeeded")
+		}
+		if !strings.Contains(string(out), "Rollback status: succeeded (worktree removed, branch deleted)") {
+			t.Errorf("expected specific rollback message, got: %s", string(out))
+		}
+
+		// Verify branch is gone
+		cmd = exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/feature/rollback-new")
+		cmd.Dir = repoPath
+		if err := cmd.Run(); err == nil {
+			t.Errorf("branch feature/rollback-new should have been deleted")
+		}
+
+		// 2. Rollback on existing branch (worktree deleted, branch should remain)
+		runGit(t, repoPath, "branch", "feature/rollback-existing")
+		cmd = exec.Command(binPath, "feature/rollback-existing")
+		cmd.Dir = repoPath
+		out, err = cmd.CombinedOutput()
+		if err == nil {
+			t.Errorf("expected failure for feature/rollback-existing, but succeeded")
+		}
+		if !strings.Contains(string(out), "Rollback status: succeeded (worktree removed)") {
+			t.Errorf("expected specific rollback message, got: %s", string(out))
+		}
+
+		// Verify branch STILL EXISTS
+		cmd = exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/feature/rollback-existing")
+		cmd.Dir = repoPath
+		if err := cmd.Run(); err != nil {
+			t.Errorf("branch feature/rollback-existing should NOT have been deleted")
+		}
+	})
 }
 
 func runGit(t *testing.T, dir string, args ...string) {
