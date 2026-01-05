@@ -95,3 +95,71 @@ func CreateWorktree(path, branch, base string) error {
 	}
 	return nil
 }
+
+// RemoveWorktree removes a worktree at the specified path
+func RemoveWorktree(path string, force bool) error {
+	args := []string{"worktree", "remove"}
+	if force {
+		args = append(args, "--force")
+	}
+	args = append(args, path)
+
+	var stderr bytes.Buffer
+	cmd := exec.Command("git", args...)
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("git worktree remove failed: %s: %w", stderr.String(), err)
+	}
+	return nil
+}
+
+// DeleteBranch deletes a local branch
+func DeleteBranch(branch string) error {
+	var stderr bytes.Buffer
+	cmd := exec.Command("git", "branch", "-D", branch)
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("git branch -D failed: %s: %w", stderr.String(), err)
+	}
+	return nil
+}
+
+// IsDirty returns true if the worktree at the given path has uncommitted changes
+func IsDirty(path string) (bool, error) {
+	cmd := exec.Command("git", "status", "--porcelain")
+	cmd.Dir = path
+	out, err := cmd.Output()
+	if err != nil {
+		return false, fmt.Errorf("git status failed in %s: %w", path, err)
+	}
+	return len(strings.TrimSpace(string(out))) > 0, nil
+}
+
+// GetCurrentBranchInMainWorktree returns the branch currently checked out in the main repo
+func GetCurrentBranchInMainWorktree(root string) (string, error) {
+	cmd := exec.Command("git", "branch", "--show-current")
+	cmd.Dir = root
+	out, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("git branch --show-current failed: %w", err)
+	}
+	return strings.TrimSpace(string(out)), nil
+}
+
+// ListLocalBranches returns a list of all local branch names
+func ListLocalBranches() ([]string, error) {
+	out, err := exec.Command("git", "branch", "--format=%(refname:short)").Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list branches: %w", err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
+	var branches []string
+	for _, line := range lines {
+		if b := strings.TrimSpace(line); b != "" {
+			branches = append(branches, b)
+		}
+	}
+	return branches, nil
+}

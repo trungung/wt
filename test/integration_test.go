@@ -100,6 +100,92 @@ func TestIntegration(t *testing.T) {
 			t.Errorf("expected list to contain 'feature/x', got: %s", got)
 		}
 	})
+
+	// Test 5: Config and PostCreateCmd
+	t.Run("Config and PostCreateCmd", func(t *testing.T) {
+		configContent := `{
+			"postCreateCmd": ["touch created.txt"],
+			"worktreeCopyPatterns": ["README.md"]
+		}`
+		if err := os.WriteFile(filepath.Join(repoPath, ".wt.config.json"), []byte(configContent), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		got := runWt("feature/y")
+		if _, err := os.Stat(filepath.Join(got, "created.txt")); os.IsNotExist(err) {
+			t.Errorf("postCreateCmd did not run: created.txt missing in %s", got)
+		}
+		if _, err := os.Stat(filepath.Join(got, "README.md")); os.IsNotExist(err) {
+			t.Errorf("copy pattern did not run: README.md missing in %s", got)
+		}
+	})
+
+	// Test 6: Exec command
+	t.Run("Exec command", func(t *testing.T) {
+		out := runWt("exec", "feature/y", "--", "ls")
+		if !strings.Contains(out, "created.txt") {
+			t.Errorf("exec did not run correctly: expected output to contain created.txt, got %s", out)
+		}
+
+		// Test: exec should fail if worktree doesn't exist (no on-the-fly creation)
+		cmd := exec.Command(binPath, "exec", "non-existent-branch", "--", "ls")
+		cmd.Dir = repoPath
+		outBytes, err := cmd.CombinedOutput()
+		if err == nil {
+			t.Errorf("exec should have failed for non-existent branch, but succeeded")
+		}
+		if !strings.Contains(string(outBytes), "no worktree exists") {
+			t.Errorf("expected error message to contain 'no worktree exists', got: %s", string(outBytes))
+		}
+	})
+
+	// Test 8: Remove worktree with branch deletion
+	t.Run("Remove worktree with branch deletion", func(t *testing.T) {
+		configContent := `{
+			"deleteBranchWithWorktree": true
+		}`
+		if err := os.WriteFile(filepath.Join(repoPath, ".wt.config.json"), []byte(configContent), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		runWt("feature/z")
+		runWt("remove", "feature/z")
+
+		// Check if branch is deleted
+		cmd := exec.Command("git", "show-ref", "--verify", "--quiet", "refs/heads/feature/z")
+		cmd.Dir = repoPath
+		if err := cmd.Run(); err == nil {
+			t.Errorf("branch feature/z should have been deleted")
+		}
+	})
+
+	// Test 9: Collision detection and strict validation
+	t.Run("Strict validation and collisions", func(t *testing.T) {
+		// Test illegal characters (whitespace)
+		cmd := exec.Command(binPath, "branch with space")
+		cmd.Dir = repoPath
+		out, err := cmd.CombinedOutput()
+		if err == nil {
+			t.Errorf("expected failure for branch with space, but succeeded")
+		}
+		if !strings.Contains(string(out), "illegal characters") {
+			t.Errorf("expected error message to contain 'illegal characters', got: %s", string(out))
+		}
+
+		// Test collision: feature/a and feature-a both map to feature-a
+		runGit(t, repoPath, "branch", "feature-a")
+		runWt("feature-a")
+
+		cmd = exec.Command(binPath, "feature/a")
+		cmd.Dir = repoPath
+		out, err = cmd.CombinedOutput()
+		if err == nil {
+			t.Errorf("expected failure for colliding branch feature/a, but succeeded")
+		}
+		if !strings.Contains(string(out), "collision") {
+			t.Errorf("expected error message to contain 'collision', got: %s", string(out))
+		}
+	})
 }
 
 func runGit(t *testing.T, dir string, args ...string) {
