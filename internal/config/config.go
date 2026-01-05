@@ -15,8 +15,12 @@ type Config struct {
 	DeleteBranchWithWorktree bool     `json:"deleteBranchWithWorktree,omitempty"`
 }
 
+func GetConfigPath(repoRoot string) string {
+	return filepath.Join(repoRoot, ".wt.config.json")
+}
+
 func LoadConfig(repoRoot string) (*Config, error) {
-	configPath := filepath.Join(repoRoot, ".wt.config.json")
+	configPath := GetConfigPath(repoRoot)
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -31,6 +35,27 @@ func LoadConfig(repoRoot string) (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func (c *Config) Write(repoRoot string) error {
+	configPath := GetConfigPath(repoRoot)
+	data, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	// Atomic write: temp file + rename
+	tempFile := configPath + ".tmp"
+	if err := os.WriteFile(tempFile, data, 0644); err != nil {
+		return err
+	}
+
+	if err := os.Rename(tempFile, configPath); err != nil {
+		os.Remove(tempFile)
+		return err
+	}
+
+	return nil
 }
 
 func (c *Config) GetWorktreeBase(repoRoot string) string {

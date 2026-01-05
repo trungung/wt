@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/trungung/wt/internal/config"
 	"github.com/trungung/wt/internal/core"
 	"github.com/trungung/wt/internal/git"
+	"github.com/trungung/wt/internal/ui"
+	"github.com/yarlson/tap"
 )
 
 var fromBase string
@@ -120,10 +122,7 @@ var removeCmd = &cobra.Command{
 		}
 
 		confirmFn := func(msg string) bool {
-			fmt.Printf("%s [y/N]: ", msg)
-			var response string
-			fmt.Scanf("%s", &response)
-			return strings.ToLower(response) == "y"
+			return ui.PromptBool(msg, false)
 		}
 
 		return core.RemoveWorktree(branch, forceRemove, confirmFn)
@@ -166,6 +165,49 @@ var pruneCmd = &cobra.Command{
 	},
 }
 
+var initYes bool
+
+var initCmd = &cobra.Command{
+	Use:   "init",
+	Short: "create .wt.config.json",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		root, err := git.GetRepoRoot()
+		if err != nil {
+			return err
+		}
+
+		configPath := config.GetConfigPath(root)
+		if _, err := os.Stat(configPath); err == nil {
+			fmt.Println(configPath)
+			return nil
+		}
+
+		cfg := &config.Config{
+			WorktreePathTemplate: "$REPO_PATH.wt",
+		}
+
+		if !initYes {
+			tap.Intro("Initializing .wt.config.json")
+
+			detected, _ := git.GetDefaultBranch()
+			cfg.DefaultBranch = ui.Prompt("Default branch", detected)
+			cfg.WorktreePathTemplate = ui.Prompt("Worktree path template", "$REPO_PATH.wt")
+			cfg.WorktreeCopyPatterns = ui.PromptList("Worktree copy patterns")
+			cfg.PostCreateCmd = ui.PromptList("Post-create commands")
+			cfg.DeleteBranchWithWorktree = ui.PromptBool("Delete branch with worktree", false)
+
+			tap.Outro("Configuration generated")
+		}
+
+		if err := cfg.Write(root); err != nil {
+			return err
+		}
+
+		fmt.Println(configPath)
+		return nil
+	},
+}
+
 func init() {
 	rootCmd.Flags().StringVarP(&fromBase, "from", "f", "", "base branch to create from")
 	rootCmd.AddCommand(execCmd)
@@ -176,6 +218,9 @@ func init() {
 	pruneCmd.Flags().BoolVar(&pruneDryRun, "dry-run", false, "show what would be removed")
 	pruneCmd.Flags().BoolVar(&pruneFetch, "fetch", false, "run git fetch --prune first")
 	rootCmd.AddCommand(pruneCmd)
+
+	initCmd.Flags().BoolVarP(&initYes, "yes", "y", false, "write defaults without prompts")
+	rootCmd.AddCommand(initCmd)
 }
 
 func main() {

@@ -245,6 +245,24 @@ func TestIntegration(t *testing.T) {
 			t.Errorf("merged-branch should have been deleted")
 		}
 	})
+
+	// Test 11: Init config
+	t.Run("Init config", func(t *testing.T) {
+		// Remove existing config if any
+		os.Remove(filepath.Join(repoPath, ".wt.config.json"))
+
+		runWt("init", "--yes")
+		configPath := filepath.Join(repoPath, ".wt.config.json")
+		if _, err := os.Stat(configPath); os.IsNotExist(err) {
+			t.Errorf("init --yes did not create config file")
+		}
+
+		// Test: init should not overwrite
+		out := runWt("init")
+		if !strings.Contains(out, ".wt.config.json") {
+			t.Errorf("init should print config path if it exists, got: %s", out)
+		}
+	})
 }
 
 func runGit(t *testing.T, dir string, args ...string) {

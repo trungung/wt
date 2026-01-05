@@ -1,6 +1,6 @@
-## PRD: `wt` v1 — Branch-centric Git worktree assistant (Go)
+# PRD: `wt` v1 — Branch-centric Git worktree assistant (Go)
 
-### 0) Summary
+## 0) Summary
 
 `wt` is a fast, branch-centric CLI that simplifies `git worktree` by letting users operate primarily on **branch names**. It deterministically manages worktree paths, safely removes/prunes worktrees, supports repo-local configuration, validates setup via a health check, and can execute commands inside a worktree. Designed to work well with zsh “ghost” suggestions by exposing completion-friendly behavior.
 
@@ -61,15 +61,11 @@ Worktree directory for a branch:
 
 - `$REPO_PATH.wt/<sanitized-branch>`
 
-**Sanitization rules (flatten; avoid nested dirs):**
+**Sanitization rules (strict):**
 
 - Replace `/` with `-`
-- Replace whitespace with `-`
-- Replace other disallowed characters with `-`
-- Collapse repeated `-` (recommended)
-- Trim leading/trailing `-` (recommended)
-
-**Collision policy (v1): FAIL**
+- Fail if branch name contains illegal characters (anything other than alphanumeric, `-`, `_`, `.`)
+- Collision policy (v1): FAIL
 
 - If two distinct branch names map to the same sanitized directory name, `wt` must:
   - fail with a clear collision error
