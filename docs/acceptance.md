@@ -35,7 +35,7 @@
 
 ## F) Exec
 
-- F1: `wt exec feature/x -- pwd` prints a path equal to the worktree directory for `feature/x`
+- F1: `wt exec feature/x -- pwd` prints a path equal to the worktree directory for `feature/x` (fails if worktree does not exist).
 - F2: Exit code of `wt exec …` equals the executed command’s exit code.
 - F3: `wt exec feature/x pwd` (missing `--`) fails with usage error and non-zero exit.
 

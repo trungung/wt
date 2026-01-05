@@ -19,13 +19,16 @@ import (
 //go:embed _wt
 var zshCompletionScript string
 
+var version = "dev"
+
 var fromBase string
 
 var rootCmd = &cobra.Command{
-	Use:   "wt [branch]",
-	Short: "wt is a branch-centric git worktree helper",
-	Long:  `A fast, branch-addressable git worktree manager.`,
-	Args:  cobra.MaximumNArgs(1),
+	Use:     "wt [branch]",
+	Short:   "wt is a branch-centric git worktree helper",
+	Long:    `A fast, branch-addressable git worktree manager.`,
+	Version: version,
+	Args:    cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			// wt: list worktrees
