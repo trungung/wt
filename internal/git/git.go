@@ -194,3 +194,10 @@ func ListLocalBranches() ([]string, error) {
 	}
 	return branches, nil
 }
+
+// IsTracked returns true if the given path (relative to repo root) is tracked by git
+func IsTracked(repoRoot, path string) bool {
+	cmd := exec.Command("git", "ls-files", "--error-unmatch", path)
+	cmd.Dir = repoRoot
+	return cmd.Run() == nil
+}

@@ -241,6 +241,21 @@ var initCmd = &cobra.Command{
 	},
 }
 
+var healthCmd = &cobra.Command{
+	Use:   "health",
+	Short: "check project health",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		checks, hasError := core.RunHealthCheck()
+		for _, c := range checks {
+			fmt.Printf("[%s] %s: %s\n", c.Level, c.Name, c.Message)
+		}
+		if hasError {
+			os.Exit(1)
+		}
+		return nil
+	},
+}
+
 func init() {
 	rootCmd.Flags().StringVarP(&fromBase, "from", "f", "", "base branch to create from")
 	rootCmd.AddCommand(execCmd)
@@ -254,6 +269,8 @@ func init() {
 
 	initCmd.Flags().BoolVarP(&initYes, "yes", "y", false, "write defaults without prompts")
 	rootCmd.AddCommand(initCmd)
+
+	rootCmd.AddCommand(healthCmd)
 }
 
 func main() {

@@ -64,3 +64,36 @@ func (c *Config) GetWorktreeBase(repoRoot string) string {
 	}
 	return strings.ReplaceAll(c.WorktreePathTemplate, "$REPO_PATH", repoRoot)
 }
+
+// CheckUnknownKeys returns an error if the config file contains keys not in the Config struct.
+func CheckUnknownKeys(repoRoot string) ([]string, error) {
+	configPath := GetConfigPath(repoRoot)
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var raw map[string]interface{}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return nil, err
+	}
+
+	known := map[string]bool{
+		"defaultBranch":            true,
+		"worktreePathTemplate":     true,
+		"worktreeCopyPatterns":     true,
+		"postCreateCmd":            true,
+		"deleteBranchWithWorktree": true,
+	}
+
+	var unknown []string
+	for k := range raw {
+		if !known[k] {
+			unknown = append(unknown, k)
+		}
+	}
+	return unknown, nil
+}

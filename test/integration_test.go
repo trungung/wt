@@ -281,6 +281,32 @@ func TestIntegration(t *testing.T) {
 			t.Errorf("init should print config path if it exists, got: %s", out)
 		}
 	})
+
+	// Test 12: Health check
+	t.Run("Health check", func(t *testing.T) {
+		// Mock origin/HEAD is already set up in main repo init
+		out := runWt("health")
+		if !strings.Contains(out, "[OK] Repo root") {
+			t.Errorf("expected health check to report OK repo root, got: %s", out)
+		}
+
+		// Test: invalid config
+		if err := os.WriteFile(filepath.Join(repoPath, ".wt.config.json"), []byte("invalid"), 0644); err != nil {
+			t.Fatal(err)
+		}
+		cmd := exec.Command(binPath, "health")
+		cmd.Dir = repoPath
+		outBytes, err := cmd.CombinedOutput()
+		if err == nil {
+			t.Errorf("health check should have failed for invalid config, but succeeded")
+		}
+		if !strings.Contains(string(outBytes), "[ERROR] Config: Invalid JSON") {
+			t.Errorf("expected error message to contain '[ERROR] Config: Invalid JSON', got: %s", string(outBytes))
+		}
+
+		// Restore valid config
+		runWt("init", "--yes")
+	})
 }
 
 func runGit(t *testing.T, dir string, args ...string) {
