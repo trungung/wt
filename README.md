@@ -11,6 +11,29 @@
 - `wt prune`: Prune merged worktrees.
 - `wt init`: Initialize configuration.
 - `wt health`: Validate config and environment.
+- `wt completion zsh`: Generate Zsh completion script.
+
+## Shell Completion (Zsh)
+
+To enable completions and autosuggestions, add the following to your `~.zshrc`:
+
+```zsh
+# Load completions
+source <(wt completion zsh)
+
+# If you use zsh-autosuggestions, enable completion-based suggestions:
+ZSH_AUTOSUGGEST_STRATEGY=(completion history)
+```
+
+If completions are not loading, you may need to manually add them to your `fpath`:
+
+```zsh
+mkdir -p ~/.zsh/completions
+wt completion zsh > ~/.zsh/completions/_wt
+fpath=(~/.zsh/completions $fpath)
+autoload -Uz _wt
+compdef _wt wt
+```
 
 ## Documentation
 

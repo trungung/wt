@@ -72,4 +72,8 @@
 - J5: If copy patterns are configured but cannot be applied, `wt health` warns.
 - J6: If two branches collide to the same sanitized path leaf, `wt health` reports ERROR.
 
+## K) Completion
+
+- K1: `wt completion zsh` outputs a valid Zsh completion script to stdout.
+
 ---

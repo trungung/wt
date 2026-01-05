@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,6 +14,9 @@ import (
 	"github.com/trungung/wt/internal/ui"
 	"github.com/yarlson/tap"
 )
+
+//go:embed _wt
+var zshCompletionScript string
 
 var fromBase string
 
@@ -256,6 +260,33 @@ var healthCmd = &cobra.Command{
 	},
 }
 
+var completionCmd = &cobra.Command{
+	Use:   "completion [shell]",
+	Short: "generate completion script for the specified shell",
+	Long: `To load completions:
+
+Zsh:
+  # Add to your ~/.zshrc:
+  source <(wt completion zsh)
+
+  # Or, if completions are not loading, you may need to add:
+  fpath=(~/.zsh/completions $fpath)
+  autoload -Uz _wt
+  compdef _wt wt
+`,
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: []string{"zsh"},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		switch args[0] {
+		case "zsh":
+			fmt.Print(zshCompletionScript)
+		default:
+			return fmt.Errorf("unsupported shell: %s", args[0])
+		}
+		return nil
+	},
+}
+
 func init() {
 	rootCmd.Flags().StringVarP(&fromBase, "from", "f", "", "base branch to create from")
 	rootCmd.AddCommand(execCmd)
@@ -271,6 +302,7 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 
 	rootCmd.AddCommand(healthCmd)
+	rootCmd.AddCommand(completionCmd)
 }
 
 func main() {

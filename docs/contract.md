@@ -26,6 +26,7 @@ A fast, branch-centric `git worktree` helper that makes worktrees feel “branch
 - `wt prune [--dry-run] [--force] [--fetch]` — prune worktrees merged into default branch; refuse dirty unless forced.
 - `wt init [--yes]` — create config interactively or with defaults; requires manual input if `origin/HEAD` missing.
 - `wt health` — validate config + environment; error if default branch cannot be determined.
+- `wt completion <shell>` — generate shell completion script.
 
 ### Config
 

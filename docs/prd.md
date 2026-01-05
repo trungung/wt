@@ -2,7 +2,8 @@
 
 ## 0) Summary
 
-`wt` is a fast, branch-centric CLI that simplifies `git worktree` by letting users operate primarily on **branch names**. It deterministically manages worktree paths, safely removes/prunes worktrees, supports repo-local configuration, validates setup via a health check, and can execute commands inside a worktree. Designed to work well with zsh “ghost” suggestions by exposing completion-friendly behavior.
+`wt` is a fast, branch-centric CLI that simplifies `git worktree` by letting users operate primarily on **branch names**. It deterministically manages worktree paths, safely removes/prunes worktrees, supports repo-local configuration, validates setup via a health check, generates shell completions, and can execute commands inside a worktree.
+ Designed to work well with zsh “ghost” suggestions by exposing completion-friendly behavior.
 
 ---
 
@@ -317,6 +318,22 @@ Rollback does not undo external side effects performed by postCreate commands ou
 
 - `0` if no ERROR
 - non-zero if any ERROR
+
+---
+
+### 4.8 `wt completion <shell>`
+
+**Purpose:** generate shell completion script.
+
+**Behavior:**
+
+- Outputs completion script to stdout for the specified shell (v1: `zsh`).
+- Does not modify any system files.
+
+**Exit codes:**
+
+- `0` success
+- non-zero for unsupported shell
 
 ---
 
