@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/trungung/wt/internal/config"
 	"github.com/trungung/wt/internal/git"
@@ -129,6 +130,13 @@ func EnsureWorktree(branch, base string) (string, error) {
 	if err := os.MkdirAll(wtRoot, 0755); err != nil {
 		return "", fmt.Errorf("failed to create worktree root: %w", err)
 	}
+
+	// Concurrency Safety: Acquire lock before modification
+	unlock, err := git.AcquireLock(root, 5*time.Second)
+	if err != nil {
+		return "", err
+	}
+	defer unlock()
 
 	// Resolve branch source if it doesn't exist locally
 	local, remote := git.BranchExists(branch)
@@ -272,6 +280,13 @@ func RemoveWorktree(branch string, force bool, confirmFn func(string) bool) erro
 		force = true // If confirmed, we can use --force for the git command
 	}
 
+	// Concurrency Safety: Acquire lock before modification
+	unlock, err := git.AcquireLock(root, 5*time.Second)
+	if err != nil {
+		return err
+	}
+	defer unlock()
+
 	if err := git.RemoveWorktree(targetWt.Path, force); err != nil {
 		return err
 	}
@@ -335,6 +350,15 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 
 	var candidates []string
 	prunedCount := 0
+
+	// Concurrency Safety: Acquire lock before modification (only if not dry run)
+	if !opts.DryRun {
+		unlock, err := git.AcquireLock(root, 5*time.Second)
+		if err != nil {
+			return 0, nil, err
+		}
+		defer unlock()
+	}
 
 	for i, wt := range worktrees {
 		if i == 0 {
