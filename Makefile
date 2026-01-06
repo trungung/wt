@@ -1,4 +1,4 @@
-.PHONY: lint lint-go lint-md format-md test build help
+.PHONY: lint lint-go lint-md format-md test ci-check build release-check help
 
 # Default target
 all: lint build test
@@ -20,5 +20,15 @@ format-md: ## Fix Markdown linting issues automatically
 test: ## Run tests
 	go test -v ./...
 
+ci-check: ## Run all CI checks (lint, build, test)
+	@echo "Running CI checks..."
+	$(MAKE) lint
+	$(MAKE) build
+	$(MAKE) test
+	@echo "CI checks passed!"
+
 build: ## Build the project
 	go build -v ./cmd/wt
+
+release-check: ## Simulate release pipeline to verify cross-platform builds
+	goreleaser release --snapshot --clean

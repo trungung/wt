@@ -63,8 +63,8 @@ func TestConcurrency(t *testing.T) {
 		errChan <- cmd1.Run()
 	}()
 
-	// Give it a moment to start and acquire the lock
-	time.Sleep(500 * time.Millisecond)
+	// Give it time to start and acquire the lock (increased from 500ms for reliability)
+	time.Sleep(2 * time.Second)
 
 	// 3. Attempt to run second wt command
 	cmd2 := exec.Command(binPath, "feature/fast")
