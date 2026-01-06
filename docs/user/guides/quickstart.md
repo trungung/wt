@@ -4,12 +4,13 @@ Get up and running with `wt` in under 5 minutes.
 
 ## What is wt?
 
-`wt` is a fast, branch-centric CLI that simplifies `git worktree` by making worktrees branch-addressable. Instead of managing paths manually, you think in branches and `wt` handles the rest:
+`wt` is a fast CLI for managing git worktrees:
 
-- Deterministic branch → directory mapping
-- Safe worktree creation/removal
-- Shell completion support
-- Prune merged branches automatically
+- Work with branches: Use `wt feature/name` instead of paths
+- Execute in isolation: Run commands in any branch from your current terminal
+- Safe operations: Won't delete worktrees with uncommitted changes
+- Automatic setup: Copies config files and runs commands when creating new worktrees
+- Prunes merged branches automatically
 
 ## Prerequisites
 
@@ -19,34 +20,35 @@ Get up and running with `wt` in under 5 minutes.
 
 ## Installation
 
-### Binary Download (Recommended)
+### Go Install (Recommended)
 
-Download the latest release from [GitHub Releases](https://github.com/trungung/wt/releases):
+Install via Go:
+
+```bash
+go install github.com/trungung/wt/cmd/wt@latest
+```
+
+This is the recommended method as it always installs the latest version.
+
+### Binary Download
+
+For manual installation, download the latest release from [GitHub Releases](https://github.com/trungung/wt/releases):
 
 ```bash
 # macOS ARM64 (Apple Silicon)
-curl -sSL https://github.com/trungung/wt/releases/download/v0.0.1/wt_Darwin_arm64.tar.gz | tar xz
+curl -sSL https://github.com/trungung/wt/releases/latest/download/wt_Darwin_arm64.tar.gz | tar xz
 sudo install wt /usr/local/bin/
 
 # macOS Intel
-curl -sSL https://github.com/trungung/wt/releases/download/v0.0.1/wt_Darwin_x86_64.tar.gz | tar xz
+curl -sSL https://github.com/trungung/wt/releases/latest/download/wt_Darwin_x86_64.tar.gz | tar xz
 sudo install wt /usr/local/bin/
 
 # Linux ARM64
-curl -sSL https://github.com/trungung/wt/releases/download/v0.0.1/wt_Linux_arm64.tar.gz | tar xz
+curl -sSL https://github.com/trungung/wt/releases/latest/download/wt_Linux_arm64.tar.gz | tar xz
 sudo install wt /usr/local/bin/
 
 # Linux x86_64
-curl -sSL https://github.com/trungung/wt/releases/download/v0.0.1/wt_Linux_x86_64.tar.gz | tar xz
-sudo install wt /usr/local/bin/
-```
-
-### Build from Source
-
-```bash
-git clone https://github.com/trungung/wt.git
-cd wt
-go build ./cmd/wt
+curl -sSL https://github.com/trungung/wt/releases/latest/download/wt_Linux_x86_64.tar.gz | tar xz
 sudo install wt /usr/local/bin/
 ```
 

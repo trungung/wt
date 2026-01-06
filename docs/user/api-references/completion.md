@@ -141,5 +141,5 @@ Additional shells (Bash, Fish) may be added in future releases. Vote or contribu
 
 ## See Also
 
-- [Getting Started](../getting-started.md#shell-completions) - Installation instructions
+- [Quickstart Guide](../guides/quickstart.md#shell-completions) - Installation instructions
 - [Command Reference](list.md) - List all commands

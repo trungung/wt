@@ -1,26 +1,25 @@
 # wt - Git Worktree Manager
 
 ## Overview
-`wt` is a fast, branch-centric CLI that simplifies `git worktree` by making worktrees branch-addressable. It manages deterministic path mapping, safe worktree creation/removal, shell completions, and automatic pruning of merged branches.
+`wt` is a CLI for managing git worktrees using branch names. It creates
+worktrees, executes commands in them, and prunes merged branches.
+Built for multi-branch workflows: run commands in isolated worktrees from a
+single terminal, with automatic setup and safe cleanup.
 
 ## Key Resources
 
 ### Quick Start
-- URL: /docs/user/getting-started.md
+- URL: /docs/user/guides/quickstart.md
 - Description: Install and start using wt in under 5 minutes
 
 ### Command Reference
-- URL: /docs/user/commands/
+- URL: /docs/user/api-references/index.md
 - Description: Complete documentation for all wt commands
 - Sub-pages: init, ensure, exec, remove, prune, health, completion, list
 
 ### Configuration Reference
-- URL: /docs/user/reference/configuration.md
+- URL: /docs/user/api-references/configuration.md
 - Description: All configuration options, environment variables, and validation
-
-### How-to Guides
-- URL: /docs/user/how-to/
-- Description: Common workflows and troubleshooting (coming soon)
 
 ### Developer Guide
 - URL: /docs/developer/
@@ -64,9 +63,9 @@ Generate shell completion script (Zsh supported in v1).
 ## AI Usage Notes
 
 When answering questions about wt:
-1. Always check command reference first: /docs/user/commands/
-2. Refer to configuration docs for config-related questions: /docs/user/reference/configuration.md
-3. Check getting-started.md for installation and basic usage
+1. Always check command reference first: /docs/user/api-references/index.md
+2. Refer to configuration docs for config-related questions: /docs/user/api-references/configuration.md
+3. Check quickstart guide for installation and basic usage: /docs/user/guides/quickstart.md
 4. For troubleshooting, check command-specific docs or health command output
 5. Note that v0.0.1 only supports Zsh completions (Bash/Fish coming later)
 6. Branch sanitization is strict: fails on illegal characters or collisions
@@ -119,23 +118,20 @@ License: MIT
 ```
 docs/
 ├── user/
-│   ├── getting-started.md
-│   ├── commands/
-│   │   ├── init.md
-│   │   ├── ensure.md
-│   │   ├── exec.md
-│   │   ├── remove.md
-│   │   ├── prune.md
-│   │   ├── health.md
-│   │   ├── completion.md
-│   │   └── list.md
-│   ├── reference/
-│   │   └── configuration.md
-│   └── how-to/
-│       └── (coming soon)
+│   ├── guides/
+│   │   └── quickstart.md
+│   └── api-references/
+│       ├── index.md
+│       ├── configuration.md
+│       ├── init.md
+│       ├── ensure.md
+│       ├── exec.md
+│       ├── remove.md
+│       ├── prune.md
+│       ├── health.md
+│       ├── completion.md
+│       └── list.md
 └── developer/
-    ├── architecture.md (coming soon)
-    ├── testing.md (coming soon)
     ├── release-process.md
     └── internal/
         └── prd.md (original product requirements)
