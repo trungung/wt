@@ -1,69 +1,90 @@
 package ui
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
-	"github.com/yarlson/tap"
+	"github.com/charmbracelet/huh"
 )
 
-// Prompt uses tap.Text to get user input.
+// Prompt uses huh.NewInput to get user input.
 func Prompt(label string, defaultVal string) string {
 	msg := label
 	if defaultVal != "" {
 		msg = fmt.Sprintf("%s (default: %s)", label, defaultVal)
 	}
-	return tap.Text(context.Background(), tap.TextOptions{
-		Message:      msg,
-		DefaultValue: defaultVal,
-	})
+	var result string
+	err := huh.NewInput().
+		Title(msg).
+		Value(&result).
+		Run()
+	if err != nil {
+		panic(err)
+	}
+	if result == "" {
+		result = defaultVal
+	}
+	return result
 }
 
-// PromptRequired uses tap.Text to get user input and requires it to be non-empty.
+// PromptRequired uses huh.NewInput to get user input and requires it to be non-empty.
 func PromptRequired(label string) string {
-	return tap.Text(context.Background(), tap.TextOptions{
-		Message: label,
-		Validate: func(s string) error {
+	var result string
+	err := huh.NewInput().
+		Title(label).
+		Validate(func(s string) error {
 			if strings.TrimSpace(s) == "" {
 				return fmt.Errorf("this field is required")
 			}
 			return nil
-		},
-	})
+		}).
+		Value(&result).
+		Run()
+	if err != nil {
+		panic(err)
+	}
+	return result
 }
 
-// PromptBool uses tap.Confirm to get a boolean input.
+// PromptBool uses huh.NewConfirm to get a boolean input.
 func PromptBool(label string, defaultVal bool) bool {
-	return tap.Confirm(context.Background(), tap.ConfirmOptions{
-		Message:      label,
-		InitialValue: defaultVal,
-	})
+	var result bool
+	err := huh.NewConfirm().
+		Title(label).
+		Affirmative("Yes").
+		Negative("No").
+		Value(&result).
+		Run()
+	if err != nil {
+		panic(err)
+	}
+	return result
 }
 
-// PromptSelect uses tap.Select to pick from a list of options.
-func PromptSelect[T any](label string, options []tap.SelectOption[T]) T {
-	return tap.Select(context.Background(), tap.SelectOptions[T]{
-		Message: label,
-		Options: options,
-	})
+// PromptSelect uses huh.NewSelect to pick from a list of options.
+func PromptSelect[T comparable](label string, options []huh.Option[T]) T {
+	var result T
+	err := huh.NewSelect[T]().
+		Title(label).
+		Options(options...).
+		Value(&result).
+		Run()
+	if err != nil {
+		panic(err)
+	}
+	return result
 }
 
-// PromptAutocomplete uses tap.Autocomplete to get user input with suggestions.
-func PromptAutocomplete(label string, suggest func(string) []string) string {
-	return tap.Autocomplete(context.Background(), tap.AutocompleteOptions{
-		Message:     label,
-		Placeholder: "Start typing to filter...",
-		Suggest:     suggest,
-		MaxResults:  10,
-	})
-}
-
-// PromptList uses tap.Text and splits by comma to return a list.
+// PromptList uses huh.NewInput and splits by comma to return a list.
 func PromptList(label string) []string {
-	input := tap.Text(context.Background(), tap.TextOptions{
-		Message: label + " (comma separated)",
-	})
+	var input string
+	err := huh.NewInput().
+		Title(label + " (comma separated)").
+		Value(&input).
+		Run()
+	if err != nil {
+		panic(err)
+	}
 
 	if strings.TrimSpace(input) == "" {
 		return []string{}

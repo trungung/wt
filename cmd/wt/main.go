@@ -8,12 +8,12 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 	"github.com/trungung/wt/internal/config"
 	"github.com/trungung/wt/internal/core"
 	"github.com/trungung/wt/internal/git"
 	"github.com/trungung/wt/internal/ui"
-	"github.com/yarlson/tap"
 )
 
 //go:embed _wt
@@ -126,15 +126,14 @@ var removeCmd = &cobra.Command{
 				branches = append(branches, wt.Branch)
 			}
 
-			branch = ui.PromptAutocomplete("Select a worktree to remove (Tab to complete)", func(input string) []string {
-				var filtered []string
-				for _, b := range branches {
-					if strings.Contains(strings.ToLower(b), strings.ToLower(input)) {
-						filtered = append(filtered, b)
-					}
-				}
-				return filtered
-			})
+			err = huh.NewSelect[string]().
+				Title("Select a worktree to remove").
+				Options(huh.NewOptions(branches...)...).
+				Value(&branch).
+				Run()
+			if err != nil {
+				return err
+			}
 
 			if branch == "" {
 				return fmt.Errorf("no worktree selected")
@@ -230,20 +229,65 @@ var initCmd = &cobra.Command{
 		}
 
 		if !initYes {
-			tap.Intro("Initializing .wt.config.json")
+			var copyPatterns string
+			var postCmds string
 
+			fmt.Println("Initializing .wt.config.json")
+
+			err := huh.NewInput().
+				Title("Default branch").
+				Value(&cfg.DefaultBranch).
+				Validate(func(s string) error {
+					if strings.TrimSpace(s) == "" {
+						return fmt.Errorf("this field is required")
+					}
+					return nil
+				}).
+				Run()
 			if err != nil {
-				fmt.Printf("Warning: %v\n", err)
-				cfg.DefaultBranch = ui.PromptRequired("Default branch")
-			} else {
-				cfg.DefaultBranch = ui.Prompt("Default branch", cfg.DefaultBranch)
+				return err
 			}
-			cfg.WorktreePathTemplate = ui.Prompt("Worktree path template", cfg.WorktreePathTemplate)
-			cfg.WorktreeCopyPatterns = ui.PromptList("Worktree copy patterns")
-			cfg.PostCreateCmd = ui.PromptList("Post-create commands")
-			cfg.DeleteBranchWithWorktree = ui.PromptBool("Delete branch with worktree", cfg.DeleteBranchWithWorktree)
+			fmt.Printf("Default branch: %s\n\n", cfg.DefaultBranch)
 
-			tap.Outro("Configuration generated")
+			err = huh.NewInput().
+				Title("Worktree path template").
+				Value(&cfg.WorktreePathTemplate).
+				Run()
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Path template: %s\n\n", cfg.WorktreePathTemplate)
+
+			err = huh.NewInput().
+				Title("Worktree copy patterns (comma separated)").
+				Placeholder(strings.Join(cfg.WorktreeCopyPatterns, ", ")).
+				Value(&copyPatterns).
+				Run()
+			if err != nil {
+				return err
+			}
+			cfg.WorktreeCopyPatterns = splitPromptList(copyPatterns)
+			fmt.Printf("Copy patterns: [%s]\n\n", strings.Join(cfg.WorktreeCopyPatterns, ", "))
+
+			err = huh.NewInput().
+				Title("Post-create commands (comma separated)").
+				Placeholder(strings.Join(cfg.PostCreateCmd, ", ")).
+				Value(&postCmds).
+				Run()
+			if err != nil {
+				return err
+			}
+			cfg.PostCreateCmd = splitPromptList(postCmds)
+			fmt.Printf("Post-create commands: [%s]\n\n", strings.Join(cfg.PostCreateCmd, ", "))
+
+			err = huh.NewConfirm().
+				Title("Delete branch with worktree?").
+				Value(&cfg.DeleteBranchWithWorktree).
+				Run()
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Delete branch with worktree: %t\n\n", cfg.DeleteBranchWithWorktree)
 		}
 
 		if err := cfg.Write(root); err != nil {
@@ -295,6 +339,21 @@ Zsh:
 		}
 		return nil
 	},
+}
+
+func splitPromptList(s string) []string {
+	if strings.TrimSpace(s) == "" {
+		return []string{}
+	}
+	parts := strings.Split(s, ",")
+	var result []string
+	for _, p := range parts {
+		trimmed := strings.TrimSpace(p)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+	return result
 }
 
 func init() {
