@@ -31,13 +31,22 @@ See [Multi-Agent Workflows](docs/user/guides/multi-agent-workflow.md) for detail
 
 ### 1. Install
 
-**Recommended** - Install via Go:
+**Recommended** - Install via Homebrew (handles PATH + completion):
+
+```bash
+brew tap trungung/wt
+brew install wt
+```
+
+**Alternative** - Install via Go:
 
 ```bash
 go install github.com/trungung/wt/cmd/wt@latest
 ```
 
 For binary downloads (macOS/Linux), see [GitHub Releases](https://github.com/trungung/wt/releases).
+
+If installing via Go or binary, add `wt` to your PATH (see quick PATH snippet in the Quickstart) and follow [Shell Completions](docs/user/guides/quickstart.md#shell-completions) to enable tab completion.
 
 ### 2. Initialize
 

@@ -20,15 +20,35 @@ Get up and running with `wt` in under 5 minutes.
 
 ## Installation
 
-### Go Install (Recommended)
+### Homebrew (Recommended)
 
-Install via Go:
+Homebrew installs `wt`, sets PATH, and installs completions automatically:
+
+```bash
+brew tap trungung/wt
+brew install wt
+```
+
+### Go Install
+
+Install via Go (manages version yourself):
 
 ```bash
 go install github.com/trungung/wt/cmd/wt@latest
 ```
 
-This is the recommended method as it always installs the latest version.
+After Go or binary installs, ensure `wt` is on your PATH and set up completions (see below).
+
+### Add `wt` to PATH (Go/binary installs)
+
+```bash
+# If installed with Go
+echo 'export PATH="$PATH:$HOME/go/bin"' >> ~/.zshrc
+
+# If installed from binary to /usr/local/bin
+echo 'export PATH="$PATH:/usr/local/bin"' >> ~/.zshrc
+source ~/.zshrc
+```
 
 ### Binary Download
 
@@ -150,6 +170,9 @@ wt prune --fetch
 ```
 
 ## Shell Completions
+
+- **Homebrew installs**: PATH and zsh completions are configured automatically.
+- **Go or binary installs**: add `wt` to your PATH and set up zsh completions manually.
 
 Enable tab completion and ghost suggestions in Zsh:
 

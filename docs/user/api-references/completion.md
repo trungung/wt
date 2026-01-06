@@ -10,7 +10,7 @@ wt completion <shell>
 
 ## Description
 
-Outputs completion script to stdout for the specified shell. Save or source this script to enable tab completion.
+Outputs completion script to stdout for the specified shell. Save or source this script to enable tab completion. Homebrew installs completion automatically; Go or binary installs require manual PATH/completion setup (see Quickstart PATH snippet).
 
 ## Arguments
 
