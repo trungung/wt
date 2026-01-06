@@ -19,6 +19,7 @@ Removes a worktree from the repository. If `deleteBranchWithWorktree` is true in
 Branch name of worktree to remove.
 
 **Behavior:**
+
 - If provided: remove that specific worktree
 - If omitted: interactive selection from existing worktrees (excluding main worktree)
 
@@ -35,6 +36,7 @@ wt remove feature/new-auth --force
 ```
 
 **Without `--force`:**
+
 - Check if worktree is dirty (`git status --porcelain` returns output)
 - If dirty: warn and require confirmation
 - If declined: do not remove, exit with non-zero code
@@ -51,6 +53,7 @@ Select a worktree to remove (Tab to complete): _
 ```
 
 Supports:
+
 - Tab completion
 - Fuzzy matching (partial matches)
 - Confirmation before removal

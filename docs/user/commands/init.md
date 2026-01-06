@@ -23,6 +23,7 @@ wt init --yes
 ```
 
 **Default values with `--yes`:**
+
 - `defaultBranch`: Auto-detected from `origin/HEAD`
 - `worktreePathTemplate`: `$REPO_PATH.wt`
 - `worktreeCopyPatterns`: `[]`

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.1] - 2025-01-06
 
 ### Added
+
 - Initial release of wt, a branch-centric git worktree manager
 - `wt init`: Interactive configuration wizard with `--yes` for defaults
 - `wt <branch>`: Ensure/create worktree for specified branch, print path
@@ -33,14 +34,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dry-run mode: `--dry-run` in `prune` to preview candidates
 
 ### Changed
+
 - Branch sanitization is now strict (fails on illegal characters instead of replacing)
 
 ### Security
+
 - File locking prevents race conditions during concurrent operations
 - Dirty worktree checks prevent accidental data loss
 - Safeguards prevent removal of default branch and currently checked out branches
 
 ### Documentation
+
 - Comprehensive user documentation in Markdown format
 - Command reference for all 8 commands
 - Configuration reference with examples and validation rules
@@ -50,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MIT License added
 
 ### Testing
+
 - 11 integration tests covering mapping, idempotency, exec, remove, prune, collisions, and rollback
 - Concurrency tests for file locking mechanism
 - Health check validation tests

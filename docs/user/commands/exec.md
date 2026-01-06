@@ -84,7 +84,7 @@ $ wt exec feature/new-auth -- node
 ### Use with shell pipes
 
 ```bash
-$ wt exec feature/new-auth -- cat package.json | jq .scripts
+wt exec feature/new-auth -- cat package.json | jq .scripts
 ```
 
 ### Default branch special case

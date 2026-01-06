@@ -171,6 +171,7 @@ Follow [SemVer 2.0.0](https://semver.org/spec/v2.0.0.html):
 - **PATCH**: Bug fixes, backwards-compatible
 
 **Examples:**
+
 - `0.0.1` → `0.0.2`: Bug fixes
 - `0.0.2` → `0.1.0`: New features
 - `0.1.0` → `1.0.0`: Major breaking changes
@@ -194,11 +195,13 @@ This creates binaries locally in `dist/` directory for testing.
 ### GitHub Actions Fails
 
 Check workflow logs:
+
 1. Go to Actions tab
 2. Click on failed workflow run
 3. Check error message
 
 **Common issues:**
+
 - Build failure: Fix code, create new commit, delete old tag, create new tag
 - GoReleaser config error: Fix `.goreleaser.yaml`
 
@@ -215,6 +218,7 @@ If release needs changes:
 ### Wrong Version in Binary
 
 If version output doesn't match tag:
+
 1. Check `cmd/wt/main.go` `version` variable
 2. Ensure it matches tag exactly (no "v" prefix in code)
 3. Re-tag and release
@@ -228,10 +232,12 @@ The `.github/workflows/release.yml` workflow:
 - Configured in: `.goreleaser.yaml`
 
 **Platform targets:**
+
 - macOS: arm64, amd64
 - Linux: arm64, amd64
 
 **Archive formats:**
+
 - tar.gz (macOS, Linux)
 - zip (Windows, if enabled)
 

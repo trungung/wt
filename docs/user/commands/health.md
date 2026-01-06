@@ -47,6 +47,7 @@ Performs comprehensive checks on repository configuration, git setup, and worktr
 **Warning:** "origin/HEAD is missing, using config override: <branch>"
 
 **Detection rules:**
+
 1. Check `defaultBranch` in `.wt.config.json`
 2. Else: read `refs/remotes/origin/HEAD` symbolic ref
 3. Else: ERROR
@@ -86,6 +87,7 @@ Performs comprehensive checks on repository configuration, git setup, and worktr
 **Error:** "Branch collision detected: <branch1> and <branch2> both sanitize to <directory>"
 
 **Collision examples:**
+
 - `feature/user-api` and `feature/user_api` → both `feature-user-api`
 - `feature/new-auth` and `feature/new_auth` → both `feature-new-auth`
 
@@ -165,11 +167,15 @@ $ wt health
 **Cause:** `origin/HEAD` is missing and no config override.
 
 **Solutions:**
+
 1. Set up default branch on remote:
+
    ```bash
    git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main
    ```
+
 2. Add to `.wt.config.json`:
+
    ```json
    {
      "defaultBranch": "main"
@@ -187,6 +193,7 @@ $ wt health
 **Cause:** Two different branch names sanitize to the same directory name.
 
 **Solutions:**
+
 1. Rename one of the branches
 2. Use custom `worktreePathTemplate` to avoid collision
 3. Accept this as a v1 limitation (collisions cause errors)
@@ -196,6 +203,7 @@ $ wt health
 **Cause:** Permission issue or disk full.
 
 **Solution:**
+
 - Check directory permissions: `ls -ld <path>`
 - Choose different `worktreePathTemplate` location
 

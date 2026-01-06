@@ -27,6 +27,7 @@ Default branch name. Overrides auto-detection from `origin/HEAD`.
 ```
 
 **Detection rules:**
+
 1. If `defaultBranch` is set in config: use it
 2. Else: read from `origin/HEAD` symbolic ref
 3. If both missing: `wt init` requires manual input, `wt health` errors
@@ -58,10 +59,12 @@ Template for worktree base directory. Supports `$REPO_PATH` variable expansion.
 ```
 
 **Variable expansion:**
+
 - `$REPO_PATH` expands to absolute path of git root
 - No other variables supported in v1
 
 **Result:**
+
 - If repo is `/Users/dev/myproject`
 - Template `$REPO_PATH.wt` → `/Users/dev/myproject.wt`
 
@@ -92,6 +95,7 @@ Glob patterns for files to copy to new worktrees. Files are copied **only if mis
 ```
 
 **Behavior:**
+
 - Applied only when creating a new worktree
 - Uses Go's `filepath.Match` for glob matching
 - Copies from repo root to worktree root
@@ -99,6 +103,7 @@ Glob patterns for files to copy to new worktrees. Files are copied **only if mis
 - Errors if source file doesn't exist (except globs that match nothing)
 
 **Common patterns:**
+
 - `.env*` - All .env files
 - `.vscode/**` - VSCode settings (recursive)
 - `scripts/**` - Scripts directory
@@ -131,6 +136,7 @@ Commands to execute after creating a new worktree. Runs in the new worktree dire
 ```
 
 **Behavior:**
+
 - Runs only when creating a new worktree
 - Executed in worktree directory (not repo root)
 - Commands run sequentially (in order)
@@ -139,6 +145,7 @@ Commands to execute after creating a new worktree. Runs in the new worktree dire
 - Exit code of last command determines overall success
 
 **Error handling:**
+
 - If `postCreateCmd` fails, `wt` performs automatic rollback:
   - Removes newly created worktree
   - Deletes local branch (if `wt` created it during this invocation)
@@ -159,10 +166,12 @@ Whether to delete the local branch when removing its worktree.
 ```
 
 **Safeguards (always applied, regardless of setting):**
+
 - Never deletes default branch
 - Never deletes branch currently checked out in main worktree
 
 **Commands affected:**
+
 - `wt remove <branch>` (with or without `--force`)
 - `wt prune` (when removing merged worktrees)
 
@@ -188,6 +197,7 @@ Whether to delete the local branch when removing its worktree.
 Branch names are sanitized when mapping to directory names:
 
 **Rules:**
+
 1. Replace `/` with `-`
 2. Fail if branch name contains illegal characters (anything except: `a-z`, `A-Z`, `0-9`, `-`, `_`, `.`)
 3. Fail if two different branches sanitize to same directory name
@@ -238,6 +248,7 @@ wt health
 ```
 
 Checks:
+
 - Config is valid JSON (ERROR if not)
 - Config contains only known keys (WARN if unknown keys)
 - Default branch can be determined (ERROR if not)

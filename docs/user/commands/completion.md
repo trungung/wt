@@ -19,6 +19,7 @@ Outputs completion script to stdout for the specified shell. Save or source this
 Shell to generate completions for.
 
 **Supported values:**
+
 - `zsh` (only shell supported in v1)
 
 ## Supported Shells

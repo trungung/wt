@@ -19,7 +19,7 @@ Scans all worktrees, identifies branches merged into default branch, and removes
 Preview what would be removed without actually removing anything.
 
 ```bash
-$ wt prune --dry-run
+wt prune --dry-run
 ```
 
 **Output:** Lists candidate worktrees that would be pruned.
@@ -31,10 +31,11 @@ Force removal even if worktree is dirty (has uncommitted changes).
 **Warning:** You may lose uncommitted work.
 
 ```bash
-$ wt prune --force
+wt prune --force
 ```
 
 **Without `--force`:**
+
 - Skip dirty worktrees and report them
 - Do not remove dirty worktrees
 
@@ -43,7 +44,7 @@ $ wt prune --force
 Run `git fetch --prune` before scanning for merged branches.
 
 ```bash
-$ wt prune --fetch
+wt prune --fetch
 ```
 
 Useful to ensure remote branches are up-to-date.
@@ -83,6 +84,7 @@ git merge-base --is-ancestor <branch> <default-branch>
 ```
 
 **Examples:**
+
 - Branch `feature/new-auth` merged into `main`: ✅ Merged → prune
 - Branch `feature/billing` not yet merged: ❌ Not merged → skip
 - Branch `feature/payment` diverged (different history): ❌ Not merged → skip

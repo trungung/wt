@@ -17,14 +17,15 @@ Lists all worktrees registered with git, showing branch names and their correspo
 Tab-separated: `branch<TAB>path` (one per line)
 
 ```
-main	/path/to/repo
-feature/new-auth	/path/to/repo.wt/feature-new-auth
-feature/payment	/path/to/repo.wt/feature-payment
-feature/billing	/path/to/repo.wt/feature-billing
-(detached)	/path/to/repo.wt/detached-head
+main /path/to/repo
+feature/new-auth /path/to/repo.wt/feature-new-auth
+feature/payment /path/to/repo.wt/feature-payment
+feature/billing /path/to/repo.wt/feature-billing
+(detached) /path/to/repo.wt/detached-head
 ```
 
 **Notes:**
+
 - First worktree is always the main repository (not in `.wt/`)
 - Detached worktrees show branch as `(detached)`
 - Main worktree always shows as your default branch name
@@ -36,9 +37,9 @@ feature/billing	/path/to/repo.wt/feature-billing
 
 ```bash
 $ wt
-main	/Users/dev/myproject
-feature/new-auth	/Users/dev/myproject.wt/feature-new-auth
-feature/payment	/Users/dev/myproject.wt/feature-payment
+main /Users/dev/myproject
+feature/new-auth /Users/dev/myproject.wt/feature-new-auth
+feature/payment /Users/dev/myproject.wt/feature-payment
 ```
 
 ### Extract branch names

@@ -62,6 +62,7 @@ wt init
 ```
 
 This creates `.wt.config.json` with sensible defaults. The interactive prompt asks for:
+
 - Default branch (auto-detected from `origin/HEAD`)
 - Worktree base path (default: `$REPO_PATH.wt`)
 - File patterns to copy to new worktrees
@@ -84,6 +85,7 @@ wt feature/new-auth
 ```
 
 The first creation:
+
 - Creates the worktree directory
 - Copies configured files (`.env*`, `.vscode/**`, etc.)
 - Runs post-create commands (e.g., `bun install`)
@@ -98,9 +100,9 @@ wt
 Output format: `branch<TAB>path` (tab-separated)
 
 ```
-main	/path/to/repo
-feature/new-auth	/path/to/repo.wt/feature-new-auth
-feature/payment	/path/to/repo.wt/feature-payment
+main /path/to/repo
+feature/new-auth /path/to/repo.wt/feature-new-auth
+feature/payment /path/to/repo.wt/feature-payment
 ```
 
 ### 4. Execute Commands in Worktree
@@ -193,10 +195,12 @@ wt init
 ### Worktree collision error
 
 Two branches sanitize to the same directory name. Example:
+
 - `feature/user-api` → `feature-user-api`
 - `feature/user_api` → `feature-user-api` (collision)
 
 Solutions:
+
 - Rename branches
 - Use custom `worktreePathTemplate`
 - Accept this as a limitation (v1 fails on collisions)

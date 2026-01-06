@@ -39,6 +39,7 @@ wt feature/new-auth --from develop
 ```
 
 **Behavior:**
+
 - If local `<branch>` exists: ignored
 - If remote `origin/<branch>` exists: ignored (creates tracking branch from origin)
 - If neither exists: creates branch from this base (or default branch if omitted)
@@ -99,6 +100,7 @@ $ wt feature/new-auth
 If `postCreateCmd` fails or worktree creation fails, `wt` performs automatic rollback:
 
 **Cleanup steps:**
+
 1. Remove newly created worktree (via `git worktree remove`)
 2. Delete local branch (if `wt` created it during this invocation)
 3. Report rollback status to stderr

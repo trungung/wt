@@ -53,6 +53,7 @@ wt feature/new-auth
 ```
 
 First creation:
+
 - Creates worktree directory
 - Copies configured files (`.env*`, `.vscode/**`, etc.)
 - Runs post-create commands (e.g., `bun install`)
@@ -109,6 +110,7 @@ Branch names map to consistent, flat directory structures:
 - `feature/user-api` → `$REPO.wt/feature-user-api`
 
 **Rules:**
+
 - Replace `/` with `-`
 - Fail on illegal characters (alphanumeric, `-`, `_`, `.` only)
 - Fail on collisions (two branches → same directory)
@@ -231,6 +233,7 @@ wt init
 ### Worktree collision error
 
 Two branches map to same directory (e.g., `feature/user-api` and `feature/user_api`). Solutions:
+
 - Rename one branch
 - Use custom `worktreePathTemplate`
 - Accept as v1 limitation (collisions fail)

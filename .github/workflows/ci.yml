@@ -7,6 +7,13 @@ on:
     branches: [ "main" ]
 
 jobs:
+  lint-md:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run markdownlint
+      run: npx markdownlint-cli2 "**/*.md" "#node_modules"
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +30,7 @@ jobs:
         version: latest
 
     - name: Build
-      run: go build -v ./cmd/wt
+      run: make build
 
     - name: Test
-      run: go test -v ./...
+      run: make test
