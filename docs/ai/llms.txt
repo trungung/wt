@@ -1,0 +1,148 @@
+# wt - Git Worktree Manager
+
+## Overview
+`wt` is a fast, branch-centric CLI that simplifies `git worktree` by making worktrees branch-addressable. It manages deterministic path mapping, safe worktree creation/removal, shell completions, and automatic pruning of merged branches.
+
+## Key Resources
+
+### Quick Start
+- URL: /docs/user/getting-started.md
+- Description: Install and start using wt in under 5 minutes
+
+### Command Reference
+- URL: /docs/user/commands/
+- Description: Complete documentation for all wt commands
+- Sub-pages: init, ensure, exec, remove, prune, health, completion, list
+
+### Configuration Reference
+- URL: /docs/user/reference/configuration.md
+- Description: All configuration options, environment variables, and validation
+
+### How-to Guides
+- URL: /docs/user/how-to/
+- Description: Common workflows and troubleshooting (coming soon)
+
+### Developer Guide
+- URL: /docs/developer/
+- Description: Architecture, testing, and contribution guidelines
+
+## Tool Purpose
+
+wt manages git worktrees by:
+- Mapping branches to deterministic, flat directory structures
+- Safely creating and removing worktrees with rollback on failure
+- Automatically pruning merged branches
+- Providing Zsh shell completions for tab completion and ghost suggestions
+- Executing commands inside worktree contexts
+
+## Core Commands
+
+### wt init
+Initialize `.wt.config.json` with interactive prompts or defaults.
+
+### wt <branch>
+Ensure worktree exists for branch, create if needed, print path. Default branch returns repo root.
+
+### wt exec <branch> -- <cmd>
+Execute command inside worktree directory.
+
+### wt remove [branch]
+Remove worktree (interactive if branch omitted). Refuses dirty worktrees unless forced.
+
+### wt prune
+Remove worktrees whose branches are merged into default branch.
+
+### wt health
+Validate configuration, git setup, and worktree state. Diagnose issues.
+
+### wt
+List all worktrees (tab-separated: branch<TAB>path).
+
+### wt completion <shell>
+Generate shell completion script (Zsh supported in v1).
+
+## AI Usage Notes
+
+When answering questions about wt:
+1. Always check command reference first: /docs/user/commands/
+2. Refer to configuration docs for config-related questions: /docs/user/reference/configuration.md
+3. Check getting-started.md for installation and basic usage
+4. For troubleshooting, check command-specific docs or health command output
+5. Note that v0.0.1 only supports Zsh completions (Bash/Fish coming later)
+6. Branch sanitization is strict: fails on illegal characters or collisions
+7. Rollback is automatic on post-create command failures
+
+## Key Concepts
+
+### Default Branch
+Auto-detected from `origin/HEAD` or set via `defaultBranch` in config.
+
+### Worktree Base Path
+Configured via `worktreePathTemplate` (default: `$REPO_PATH.wt`). Supports `$REPO_PATH` variable expansion.
+
+### Branch Sanitization
+Replaces `/` with `-`. Fails on illegal characters (anything except alphanumeric, `-`, `_`, `.`). Fails on collisions (two branches → same directory).
+
+### Dirty Worktree
+Worktree with uncommitted changes (`git status --porcelain` returns output). Protected from removal unless forced.
+
+### Rollback
+Automatic cleanup when post-create commands fail: removes worktree, deletes branch if created.
+
+## Configuration File
+
+Location: `.wt.config.json` at repository root.
+
+Options:
+- defaultBranch: Override default branch detection
+- worktreePathTemplate: Template for worktree directory
+- worktreeCopyPatterns: Glob patterns for files to copy to new worktrees
+- postCreateCmd: Commands to run after worktree creation
+- deleteBranchWithWorktree: Delete local branch when removing worktree
+
+## Version Information
+
+Current version: 0.0.1
+Release date: January 2025
+License: MIT
+
+## Limitations (v0.0.1)
+
+- Only Zsh completions supported (Bash, Fish coming in future)
+- No interactive worktree selection in `wt <branch>` (only in `wt remove`)
+- No git remote API integration (GitHub/GitLab)
+- Branch collisions cause errors (no automatic resolution)
+- Strict sanitization (cannot configure custom sanitization rules)
+
+## Documentation Structure
+
+```
+docs/
+├── user/
+│   ├── getting-started.md
+│   ├── commands/
+│   │   ├── init.md
+│   │   ├── ensure.md
+│   │   ├── exec.md
+│   │   ├── remove.md
+│   │   ├── prune.md
+│   │   ├── health.md
+│   │   ├── completion.md
+│   │   └── list.md
+│   ├── reference/
+│   │   └── configuration.md
+│   └── how-to/
+│       └── (coming soon)
+└── developer/
+    ├── architecture.md (coming soon)
+    ├── testing.md (coming soon)
+    ├── release-process.md
+    └── internal/
+        └── prd.md (original product requirements)
+```
+
+## Links
+
+- GitHub Repository: https://github.com/trungung/wt
+- Issues: https://github.com/trungung/wt/issues
+- License: https://github.com/trungung/wt/blob/main/LICENSE

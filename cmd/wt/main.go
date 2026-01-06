@@ -19,7 +19,7 @@ import (
 //go:embed _wt
 var zshCompletionScript string
 
-var version = "dev"
+var version = "0.0.1"
 
 var fromBase string
 
