@@ -256,4 +256,4 @@ Checks:
 - Copy patterns match existing files (WARN if nothing matches)
 - No branch name collisions (ERROR if collision detected)
 
-See [Getting Started](../getting-started.md#troubleshooting) for common issues.
+See [Quickstart Guide](../../guides/quickstart.md#troubleshooting) for common issues.

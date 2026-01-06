@@ -175,6 +175,6 @@ Deleted branch: feature/new-auth
 
 ## See Also
 
-- [Configuration Reference](../reference/configuration.md#deletebranchwithworktree) - Branch deletion setting
+- [Configuration Reference](configuration.md#deletebranchwithworktree) - Branch deletion setting
 - [wt prune](prune.md) - Remove merged worktrees in bulk
 - [wt](list.md) - List all worktrees

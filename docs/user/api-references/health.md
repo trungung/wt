@@ -209,5 +209,5 @@ $ wt health
 
 ## See Also
 
-- [Configuration Reference](../reference/configuration.md) - All configuration options
+- [Configuration Reference](configuration.md) - All configuration options
 - [wt init](init.md) - Initialize configuration file

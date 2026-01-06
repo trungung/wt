@@ -117,5 +117,5 @@ Default branch: main
 
 ## See Also
 
-- [Configuration Reference](../reference/configuration.md) - All configuration options
+- [Configuration Reference](configuration.md) - All configuration options
 - [wt health](health.md) - Validate configuration

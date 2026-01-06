@@ -1,4 +1,4 @@
-# Getting Started
+# Quickstart Guide
 
 Get up and running with `wt` in under 5 minutes.
 
@@ -168,9 +168,9 @@ compdef _wt wt
 
 ## Next Steps
 
-- [Configuration Reference](reference/configuration.md) - All configuration options
-- [Command Reference](commands/) - Detailed command documentation
-- [How-to Guides](how-to/) - Common workflows and troubleshooting
+- [Configuration Reference](../api-references/configuration.md) - All configuration options
+- [API Reference](../api-references/index.md) - Detailed command documentation
+- [**Multi-Agent Workflow**](multi-agent-workflow.md) - How to use `wt` with CLI agents and parallel terminal sessions.
 
 ## Troubleshooting
 
@@ -205,4 +205,4 @@ Solutions:
 - Use custom `worktreePathTemplate`
 - Accept this as a limitation (v1 fails on collisions)
 
-See [Configuration Reference](reference/configuration.md) for sanitization rules.
+See [Configuration Reference](../api-references/configuration.md) for sanitization rules.

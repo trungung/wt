@@ -140,4 +140,4 @@ Error: Command "nonexistent-script" not found
 ## See Also
 
 - [wt <branch>](ensure.md) - Ensure worktree for a branch
-- [Configuration Reference](../reference/configuration.md) - Default branch configuration
+- [Configuration Reference](configuration.md) - Default branch configuration
