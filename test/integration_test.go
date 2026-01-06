@@ -14,7 +14,9 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		_ = os.RemoveAll(tempDir)
+	}()
 
 	// Resolve symlinks (especially on macOS where /var -> /private/var)
 	tempDir, err = filepath.EvalSymlinks(tempDir)
@@ -267,7 +269,7 @@ func TestIntegration(t *testing.T) {
 	// Test 11: Init config
 	t.Run("Init config", func(t *testing.T) {
 		// Remove existing config if any
-		os.Remove(filepath.Join(repoPath, ".wt.config.json"))
+		_ = os.Remove(filepath.Join(repoPath, ".wt.config.json"))
 
 		runWt("init", "--yes")
 		configPath := filepath.Join(repoPath, ".wt.config.json")

@@ -32,7 +32,7 @@ sudo install wt /usr/local/bin/
 Or build from source:
 
 ```bash
-go install github.com/trungung/wt@latest
+go install github.com/trungung/wt/cmd/wt@latest
 ```
 
 ### Initialize

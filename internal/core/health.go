@@ -81,8 +81,8 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 		if err != nil {
 			add("Default branch", LevelERROR, "Could not determine default branch via origin/HEAD. Please set 'defaultBranch' in config.")
 		} else {
-			add("Default branch", LevelOK, detected)
 			defaultBranch = detected
+			add("Default branch", LevelOK, defaultBranch)
 		}
 	} else {
 		add("Default branch", LevelOK, fmt.Sprintf("%s (override)", defaultBranch))
@@ -98,8 +98,8 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 		if err != nil {
 			add("Worktree base", LevelERROR, fmt.Sprintf("Directory %s is not writable: %v", wtRoot, err))
 		} else {
-			f.Close()
-			os.Remove(f.Name())
+			_ = f.Close()
+			_ = os.Remove(f.Name())
 			add("Worktree base", LevelOK, wtRoot)
 		}
 	} else {
@@ -109,8 +109,8 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 			if err != nil {
 				add("Worktree base", LevelERROR, fmt.Sprintf("Parent directory %s is not writable: %v", parent, err))
 			} else {
-				f.Close()
-				os.Remove(f.Name())
+				_ = f.Close()
+				_ = os.Remove(f.Name())
 				add("Worktree base", LevelOK, fmt.Sprintf("%s (to be created)", wtRoot))
 			}
 		} else {

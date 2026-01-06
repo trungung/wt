@@ -51,7 +51,7 @@ func (c *Config) Write(repoRoot string) error {
 	}
 
 	if err := os.Rename(tempFile, configPath); err != nil {
-		os.Remove(tempFile)
+		_ = os.Remove(tempFile)
 		return err
 	}
 

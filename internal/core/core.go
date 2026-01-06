@@ -136,7 +136,9 @@ func EnsureWorktree(branch, base string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer unlock()
+	defer func() {
+		_ = unlock()
+	}()
 
 	// Resolve branch source if it doesn't exist locally
 	local, remote := git.BranchExists(branch)
@@ -162,7 +164,7 @@ func EnsureWorktree(branch, base string) (string, error) {
 	// Success from here: attempt post-creation steps
 	if err := applyPostCreation(root, targetPath, cfg, isNewBranch, branch); err != nil {
 		// Rollback on failure
-		status := "started"
+		var status string
 		rbErr := git.RemoveWorktree(targetPath, true)
 		if rbErr != nil {
 			status = fmt.Sprintf("failed to remove worktree: %v", rbErr)
@@ -285,8 +287,9 @@ func RemoveWorktree(branch string, force bool, confirmFn func(string) bool) erro
 	if err != nil {
 		return err
 	}
-	defer unlock()
-
+	defer func() {
+		_ = unlock()
+	}()
 	if err := git.RemoveWorktree(targetWt.Path, force); err != nil {
 		return err
 	}
@@ -357,7 +360,9 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 		if err != nil {
 			return 0, nil, err
 		}
-		defer unlock()
+		defer func() {
+			_ = unlock()
+		}()
 	}
 
 	for i, wt := range worktrees {
@@ -444,7 +449,9 @@ func copyIfMissing(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer sourceFile.Close()
+	defer func() {
+		_ = sourceFile.Close()
+	}()
 
 	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 		return err
@@ -454,7 +461,9 @@ func copyIfMissing(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer destFile.Close()
+	defer func() {
+		_ = destFile.Close()
+	}()
 
 	_, err = io.Copy(destFile, sourceFile)
 	return err
