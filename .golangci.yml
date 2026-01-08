@@ -1,6 +1,16 @@
 version: "2"
 
 linters:
+  # Enable all default linters explicitly for consistency across environments
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+  disable:
+    - depguard # Not needed for this project
+
   settings:
     errcheck:
       check-blank: false
@@ -8,3 +18,12 @@ linters:
       exclude-functions:
         - (io.Closer).Close
         - (*github.com/gofrs/flock.Flock).Unlock
+
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+
+issues:
+  max-same-issues: 0
+  max-issues-per-linter: 0

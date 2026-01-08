@@ -12,7 +12,39 @@ import (
 
 	"github.com/trungung/wt/internal/config"
 	"github.com/trungung/wt/internal/git"
+	"github.com/trungung/wt/internal/log"
 )
+
+// RepoEnv holds the common environment needed for worktree operations
+type RepoEnv struct {
+	Root          string
+	Config        *config.Config
+	DefaultBranch string
+}
+
+// LoadRepoEnv loads the repository environment (root, config, default branch)
+func LoadRepoEnv() (*RepoEnv, error) {
+	root, err := git.GetRepoRoot()
+	if err != nil {
+		return nil, err
+	}
+
+	cfg, err := config.LoadConfig(root)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load config: %w", err)
+	}
+
+	defaultBranch := cfg.DefaultBranch
+	if defaultBranch == "" {
+		defaultBranch, _ = git.GetDefaultBranch()
+	}
+
+	return &RepoEnv{
+		Root:          root,
+		Config:        cfg,
+		DefaultBranch: defaultBranch,
+	}, nil
+}
 
 // MapBranchToDir converts a branch name to a sanitized directory name.
 // Sanitization rules:
@@ -32,27 +64,14 @@ func MapBranchToDir(branch string) (string, error) {
 // It handles the default branch special case (returns repo root).
 // It returns an error if no worktree exists for the branch.
 func FindWorktree(branch string) (string, error) {
-	root, err := git.GetRepoRoot()
+	env, err := LoadRepoEnv()
 	if err != nil {
 		return "", err
 	}
 
-	cfg, err := config.LoadConfig(root)
-	if err != nil {
-		return "", fmt.Errorf("failed to load config: %w", err)
-	}
-
-	defaultBranch := cfg.DefaultBranch
-	if defaultBranch == "" {
-		defaultBranch, err = git.GetDefaultBranch()
-		if err != nil {
-			return "", err
-		}
-	}
-
 	// Case: Default branch is the repo root
-	if branch == defaultBranch {
-		return root, nil
+	if branch == env.DefaultBranch {
+		return env.Root, nil
 	}
 
 	worktrees, err := git.ListWorktrees()
@@ -88,19 +107,9 @@ func EnsureWorktree(branch, base string) (string, error) {
 	}
 
 	// 2. Not found, proceed with creation
-	root, err := git.GetRepoRoot()
+	env, err := LoadRepoEnv()
 	if err != nil {
 		return "", err
-	}
-
-	cfg, err := config.LoadConfig(root)
-	if err != nil {
-		return "", fmt.Errorf("failed to load config: %w", err)
-	}
-
-	defaultBranch := cfg.DefaultBranch
-	if defaultBranch == "" {
-		defaultBranch, _ = git.GetDefaultBranch()
 	}
 
 	// Case: Create new worktree
@@ -109,7 +118,7 @@ func EnsureWorktree(branch, base string) (string, error) {
 		return "", err
 	}
 
-	wtRoot := cfg.GetWorktreeBase(root)
+	wtRoot := env.Config.GetWorktreeBase(env.Root)
 	targetPath := filepath.Clean(filepath.Join(wtRoot, dirName))
 
 	worktrees, err := git.ListWorktrees()
@@ -132,7 +141,7 @@ func EnsureWorktree(branch, base string) (string, error) {
 	}
 
 	// Concurrency Safety: Acquire lock before modification
-	unlock, err := git.AcquireLock(root, 5*time.Second)
+	unlock, err := git.AcquireLock(env.Root, 5*time.Second)
 	if err != nil {
 		return "", err
 	}
@@ -146,10 +155,10 @@ func EnsureWorktree(branch, base string) (string, error) {
 
 	if isNewBranch {
 		if base == "" {
-			if defaultBranch == "" {
+			if env.DefaultBranch == "" {
 				return "", fmt.Errorf("branch %s not found and no default branch detected. Use --from", branch)
 			}
-			base = defaultBranch
+			base = env.DefaultBranch
 		}
 	} else {
 		// Branch exists (locally or on origin).
@@ -162,7 +171,7 @@ func EnsureWorktree(branch, base string) (string, error) {
 	}
 
 	// Success from here: attempt post-creation steps
-	if err := applyPostCreation(root, targetPath, cfg, isNewBranch, branch); err != nil {
+	if err := applyPostCreation(env.Root, targetPath, env.Config, isNewBranch, branch); err != nil {
 		// Rollback on failure
 		var status string
 		rbErr := git.RemoveWorktree(targetPath, true)
@@ -209,6 +218,7 @@ func checkCollisions(branch, dirName string, existing []git.Worktree) error {
 	// Check all local branches to be thorough (as per PRD 2.3 and 4.7)
 	branches, err := git.ListLocalBranches()
 	if err != nil {
+		log.Debugf("skipping branch collision check: %v", err)
 		return nil // skip if we can't list branches, not fatal here
 	}
 	for _, b := range branches {
@@ -230,25 +240,16 @@ func checkCollisions(branch, dirName string, existing []git.Worktree) error {
 
 // RemoveWorktree handles the safety logic for removing a worktree
 func RemoveWorktree(branch string, force bool, confirmFn func(string) bool) error {
-	root, err := git.GetRepoRoot()
+	env, err := LoadRepoEnv()
 	if err != nil {
 		return err
 	}
 
-	cfg, err := config.LoadConfig(root)
-	if err != nil {
-		return err
+	if env.DefaultBranch == "" {
+		return fmt.Errorf("could not determine default branch")
 	}
 
-	defaultBranch := cfg.DefaultBranch
-	if defaultBranch == "" {
-		defaultBranch, err = git.GetDefaultBranch()
-		if err != nil {
-			return err
-		}
-	}
-
-	if branch == defaultBranch {
+	if branch == env.DefaultBranch {
 		return fmt.Errorf("refusing to remove default branch/main worktree")
 	}
 
@@ -283,7 +284,7 @@ func RemoveWorktree(branch string, force bool, confirmFn func(string) bool) erro
 	}
 
 	// Concurrency Safety: Acquire lock before modification
-	unlock, err := git.AcquireLock(root, 5*time.Second)
+	unlock, err := git.AcquireLock(env.Root, 5*time.Second)
 	if err != nil {
 		return err
 	}
@@ -294,10 +295,12 @@ func RemoveWorktree(branch string, force bool, confirmFn func(string) bool) erro
 		return err
 	}
 
-	if cfg.DeleteBranchWithWorktree {
-		mainBranch, _ := git.GetCurrentBranchInMainWorktree(root)
-		if branch != mainBranch && branch != defaultBranch {
-			_ = git.DeleteBranch(branch)
+	if env.Config.DeleteBranchWithWorktree {
+		mainBranch, _ := git.GetCurrentBranchInMainWorktree(env.Root)
+		if branch != mainBranch && branch != env.DefaultBranch {
+			if err := git.DeleteBranch(branch); err != nil {
+				log.Warnf("failed to delete branch %s: %v", branch, err)
+			}
 		}
 	}
 
@@ -312,29 +315,22 @@ type PruneOptions struct {
 
 // PruneWorktrees removes worktrees whose branches are merged into the default branch
 func PruneWorktrees(opts PruneOptions) (int, []string, error) {
-	root, err := git.GetRepoRoot()
-	if err != nil {
-		return 0, nil, err
-	}
-
-	cfg, err := config.LoadConfig(root)
+	env, err := LoadRepoEnv()
 	if err != nil {
 		return 0, nil, err
 	}
 
 	if opts.Fetch {
-		_ = git.FetchPrune()
-	}
-
-	defaultBranch := cfg.DefaultBranch
-	if defaultBranch == "" {
-		defaultBranch, err = git.GetDefaultBranch()
-		if err != nil {
-			return 0, nil, err
+		if err := git.FetchPrune(); err != nil {
+			log.Warnf("failed to fetch and prune: %v", err)
 		}
 	}
 
-	merged, err := git.GetMergedBranches(defaultBranch)
+	if env.DefaultBranch == "" {
+		return 0, nil, fmt.Errorf("could not determine default branch")
+	}
+
+	merged, err := git.GetMergedBranches(env.DefaultBranch)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -349,14 +345,14 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 		return 0, nil, err
 	}
 
-	mainBranch, _ := git.GetCurrentBranchInMainWorktree(root)
+	mainBranch, _ := git.GetCurrentBranchInMainWorktree(env.Root)
 
 	var candidates []string
 	prunedCount := 0
 
 	// Concurrency Safety: Acquire lock before modification (only if not dry run)
 	if !opts.DryRun {
-		unlock, err := git.AcquireLock(root, 5*time.Second)
+		unlock, err := git.AcquireLock(env.Root, 5*time.Second)
 		if err != nil {
 			return 0, nil, err
 		}
@@ -369,19 +365,19 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 		if i == 0 {
 			continue // Skip main worktree
 		}
-		if wt.Branch == "(detached)" || wt.Branch == defaultBranch {
+		if wt.Branch == "(detached)" || wt.Branch == env.DefaultBranch {
 			continue
 		}
 
 		if mergedSet[wt.Branch] {
 			dirty, err := git.IsDirty(wt.Path)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Warning: failed to check dirty status for %s: %v\n", wt.Branch, err)
+				log.Warnf("failed to check dirty status for %s: %v", wt.Branch, err)
 				continue
 			}
 
 			if dirty && !opts.Force {
-				fmt.Fprintf(os.Stderr, "Skipping %s: worktree is dirty (use --force to prune)\n", wt.Branch)
+				log.Infof("Skipping %s: worktree is dirty (use --force to prune)", wt.Branch)
 				continue
 			}
 
@@ -389,11 +385,13 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 				candidates = append(candidates, wt.Branch)
 			} else {
 				if err := git.RemoveWorktree(wt.Path, opts.Force); err != nil {
-					fmt.Fprintf(os.Stderr, "Error: failed to remove worktree for %s: %v\n", wt.Branch, err)
+					log.Errorf("failed to remove worktree for %s: %v", wt.Branch, err)
 					continue
 				}
-				if cfg.DeleteBranchWithWorktree && wt.Branch != mainBranch {
-					_ = git.DeleteBranch(wt.Branch)
+				if env.Config.DeleteBranchWithWorktree && wt.Branch != mainBranch {
+					if err := git.DeleteBranch(wt.Branch); err != nil {
+						log.Warnf("failed to delete branch %s: %v", wt.Branch, err)
+					}
 				}
 				prunedCount++
 			}

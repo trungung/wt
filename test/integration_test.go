@@ -59,7 +59,13 @@ func TestIntegration(t *testing.T) {
 	binPath := filepath.Join(tempDir, "wt")
 	testDir, _ := os.Getwd()
 	projectRoot := filepath.Dir(testDir)
-	buildCmd := exec.Command("go", "build", "-o", binPath, "./cmd/wt")
+
+	// Clean build cache first to ensure fresh build in CI
+	cleanCmd := exec.Command("go", "clean", "-cache")
+	cleanCmd.Dir = projectRoot
+	_ = cleanCmd.Run() // Ignore errors
+
+	buildCmd := exec.Command("go", "build", "-a", "-o", binPath, "./cmd/wt")
 	buildCmd.Dir = projectRoot
 	if out, err := buildCmd.CombinedOutput(); err != nil {
 		t.Fatalf("failed to build binary: %s: %v", string(out), err)
