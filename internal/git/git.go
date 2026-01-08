@@ -35,6 +35,18 @@ func runWithStderr(dir string, args ...string) ([]byte, []byte, error) {
 	return stdout.Bytes(), stderr.Bytes(), err
 }
 
+// parseLines splits output by newlines and filters empty lines
+func parseLines(output []byte) []string {
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	var result []string
+	for _, line := range lines {
+		if b := strings.TrimSpace(line); b != "" {
+			result = append(result, b)
+		}
+	}
+	return result
+}
+
 // ListWorktrees returns a list of existing worktrees
 func ListWorktrees() ([]Worktree, error) {
 	out, err := run("", "worktree", "list", "--porcelain")
@@ -89,15 +101,7 @@ func GetMergedBranches(base string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get merged branches: %w", err)
 	}
-
-	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-	var merged []string
-	for _, line := range lines {
-		if b := strings.TrimSpace(line); b != "" {
-			merged = append(merged, b)
-		}
-	}
-	return merged, nil
+	return parseLines(out), nil
 }
 
 // GetRepoRoot returns the absolute path to the git repository root
@@ -192,14 +196,7 @@ func ListLocalBranches() ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list branches: %w", err)
 	}
-	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-	var branches []string
-	for _, line := range lines {
-		if b := strings.TrimSpace(line); b != "" {
-			branches = append(branches, b)
-		}
-	}
-	return branches, nil
+	return parseLines(out), nil
 }
 
 // IsTracked returns true if the given path (relative to repo root) is tracked by git
