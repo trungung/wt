@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "embed"
 	"errors"
 	"fmt"
 	"os"
@@ -10,9 +9,6 @@ import (
 	"github.com/trungung/wt/internal/core"
 	"github.com/trungung/wt/internal/git"
 )
-
-//go:embed _wt
-var zshCompletionScript string
 
 var version = "0.0.1"
 
