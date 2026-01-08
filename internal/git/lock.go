@@ -27,5 +27,9 @@ func AcquireLock(repoRoot string, timeout time.Duration) (func() error, error) {
 		return nil, fmt.Errorf("another wt operation is in progress")
 	}
 
+	if !locked {
+		return nil, fmt.Errorf("another wt operation is in progress in this repository")
+	}
+
 	return fileLock.Unlock, nil
 }
