@@ -417,12 +417,28 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 // It copies files matching the configured patterns and executes post-create commands.
 func applyPostCreation(repoRoot, targetPath string, cfg *config.Config, isNewBranch bool, branch string) error {
 	// 1. Copy patterns
+	absRepoRoot, err := filepath.Abs(repoRoot)
+	if err != nil {
+		return fmt.Errorf("failed to resolve repo root: %w", err)
+	}
+
 	for _, pattern := range cfg.WorktreeCopyPatterns {
 		matches, err := filepath.Glob(filepath.Join(repoRoot, pattern))
 		if err != nil {
 			continue
 		}
 		for _, src := range matches {
+			// Security: Validate file is within repo root
+			absSrc, err := filepath.Abs(src)
+			if err != nil {
+				log.Warnf("skipping file with unresolvable path: %s", src)
+				continue
+			}
+			if !strings.HasPrefix(absSrc, absRepoRoot) {
+				log.Warnf("skipping file outside repo: %s", src)
+				continue
+			}
+
 			rel, err := filepath.Rel(repoRoot, src)
 			if err != nil {
 				continue
@@ -445,6 +461,12 @@ func applyPostCreation(repoRoot, targetPath string, cfg *config.Config, isNewBra
 			log.Warnf("skipping malformed postCreateCmd: %q", cmdStr)
 			continue
 		}
+
+		// Security: Validate command to prevent injection
+		if err := validatePostCreateCommand(parts); err != nil {
+			return fmt.Errorf("invalid postCreateCmd '%s': %w", cmdStr, err)
+		}
+
 		cmd := exec.Command(parts[0], parts[1:]...)
 		cmd.Dir = targetPath
 		cmd.Stdout = os.Stdout
@@ -462,6 +484,15 @@ func applyPostCreation(repoRoot, targetPath string, cfg *config.Config, isNewBra
 func copyIfMissing(src, dst string) error {
 	if _, err := os.Stat(dst); err == nil {
 		return nil // already exists
+	}
+
+	// Security: Check if source is a regular file (not a symlink)
+	fileInfo, err := os.Lstat(src)
+	if err != nil {
+		return fmt.Errorf("failed to stat source file: %w", err)
+	}
+	if !fileInfo.Mode().IsRegular() {
+		return fmt.Errorf("source is not a regular file: %s", src)
 	}
 
 	sourceFile, err := os.Open(src)
@@ -486,4 +517,54 @@ func copyIfMissing(src, dst string) error {
 
 	_, err = io.Copy(destFile, sourceFile)
 	return err
+}
+
+// validatePostCreateCommand validates a postCreateCmd entry for security.
+// It prevents command injection by checking for dangerous patterns.
+func validatePostCreateCommand(parts []string) error {
+	if len(parts) == 0 {
+		return fmt.Errorf("empty command")
+	}
+
+	cmd := parts[0]
+	args := parts[1:]
+
+	// Check for shell interpreters that could enable injection
+	dangerousCommands := map[string]bool{
+		"sh":         true,
+		"bash":       true,
+		"zsh":        true,
+		"fish":       true,
+		"cmd":        true,
+		"powershell": true,
+		"pwsh":       true,
+		"python":     true,
+		"python3":    true,
+		"ruby":       true,
+		"perl":       true,
+		"node":       true,
+		"nodejs":     true,
+	}
+
+	// Get base command name (handle paths like /bin/sh or ./script.sh)
+	baseCmd := filepath.Base(cmd)
+	if dangerousCommands[baseCmd] {
+		return fmt.Errorf("shell interpreters and script engines are not allowed for security: %s", cmd)
+	}
+
+	// Check for dangerous argument patterns
+	for _, arg := range args {
+		// Prevent command chaining
+		if strings.Contains(arg, ";") || strings.Contains(arg, "&&") || strings.Contains(arg, "||") ||
+			strings.Contains(arg, "|") || strings.Contains(arg, "$") || strings.Contains(arg, "`") {
+			return fmt.Errorf("argument contains dangerous characters: %s", arg)
+		}
+
+		// Prevent path traversal attempts
+		if strings.Contains(arg, "..") {
+			return fmt.Errorf("argument contains path traversal: %s", arg)
+		}
+	}
+
+	return nil
 }

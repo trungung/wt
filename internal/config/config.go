@@ -46,7 +46,7 @@ func (c *Config) Write(repoRoot string) error {
 
 	// Atomic write: temp file + rename
 	tempFile := configPath + ".tmp"
-	if err := os.WriteFile(tempFile, data, 0644); err != nil {
+	if err := os.WriteFile(tempFile, data, 0600); err != nil {
 		return err
 	}
 
