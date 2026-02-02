@@ -15,6 +15,13 @@ import (
 	"github.com/trungung/wt/internal/log"
 )
 
+// branchNamePattern is the regex pattern for valid branch names.
+// Valid characters: alphanumeric, hyphen, underscore, dot.
+const branchNamePattern = `^[a-zA-Z0-9\-_.]+$`
+
+// branchNameRegex is compiled once for performance.
+var branchNameRegex = regexp.MustCompile(branchNamePattern)
+
 // RepoEnv holds the common environment needed for worktree operations
 type RepoEnv struct {
 	Root          string
@@ -52,8 +59,7 @@ func LoadRepoEnv() (*RepoEnv, error) {
 // - Fail if branch name contains illegal characters (anything other than alphanumeric, '-', '_', '.')
 func MapBranchToDir(branch string) (string, error) {
 	sanitized := strings.ReplaceAll(branch, "/", "-")
-	valid := regexp.MustCompile(`^[a-zA-Z0-9\-_.]+$`)
-	if !valid.MatchString(sanitized) {
+	if !branchNameRegex.MatchString(sanitized) {
 		return "", fmt.Errorf("branch name %q contains illegal characters for worktree mapping", branch)
 	}
 
@@ -422,10 +428,15 @@ func applyPostCreation(repoRoot, targetPath string, cfg *config.Config, isNewBra
 
 	// 2. PostCreateCmd
 	for _, cmdStr := range cfg.PostCreateCmd {
-		if cmdStr == "" {
+		if strings.TrimSpace(cmdStr) == "" {
+			log.Warnf("skipping empty postCreateCmd in config")
 			continue
 		}
 		parts := strings.Fields(cmdStr)
+		if len(parts) == 0 {
+			log.Warnf("skipping malformed postCreateCmd: %q", cmdStr)
+			continue
+		}
 		cmd := exec.Command(parts[0], parts[1:]...)
 		cmd.Dir = targetPath
 		cmd.Stdout = os.Stdout

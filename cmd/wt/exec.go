@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -41,7 +42,8 @@ var execCmd = &cobra.Command{
 		c.Stdout = os.Stdout
 		c.Stderr = os.Stderr
 		if err := c.Run(); err != nil {
-			if exitErr, ok := err.(*exec.ExitError); ok {
+			var exitErr *exec.ExitError
+			if errors.As(err, &exitErr) {
 				os.Exit(exitErr.ExitCode())
 			}
 			return err

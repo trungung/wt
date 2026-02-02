@@ -63,8 +63,9 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 				}
 			}
 		}
-		cfg, err = config.LoadConfig(root)
-		if err != nil {
+		var loadErr error
+		cfg, loadErr = config.LoadConfig(root)
+		if loadErr != nil {
 			// If LoadConfig fails, we use a blank config for the rest of the checks
 			// to avoid panics, but the ERROR is already reported above.
 			cfg = &config.Config{}
