@@ -10,27 +10,33 @@ import (
 	"github.com/trungung/wt/internal/git"
 )
 
+// HealthLevel represents the severity level of a health check
 type HealthLevel string
 
 const (
-	LevelOK    HealthLevel = "OK"
-	LevelWARN  HealthLevel = "WARN"
-	LevelERROR HealthLevel = "ERROR"
+	// LevelOk indicates the health check passed
+	LevelOk HealthLevel = "OK"
+	// LevelWarn indicates a non-critical issue
+	LevelWarn HealthLevel = "WARN"
+	// LevelError indicates a critical issue
+	LevelError HealthLevel = "ERROR"
 )
 
+// HealthCheck represents a single health check result
 type HealthCheck struct {
 	Name    string
 	Level   HealthLevel
 	Message string
 }
 
+// RunHealthCheck performs a comprehensive health check of the wt setup
 func RunHealthCheck() ([]HealthCheck, bool) {
 	var checks []HealthCheck
 	hasError := false
 
 	add := func(name string, level HealthLevel, message string) {
 		checks = append(checks, HealthCheck{Name: name, Level: level, Message: message})
-		if level == LevelERROR {
+		if level == LevelError {
 			hasError = true
 		}
 	}
@@ -38,10 +44,10 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 	// 1. Repo root
 	root, err := git.GetRepoRoot()
 	if err != nil {
-		add("Repo root", LevelERROR, fmt.Sprintf("Not a git repository: %v", err))
+		add("Repo root", LevelError, fmt.Sprintf("not a git repository: %v", err))
 		return checks, true
 	}
-	add("Repo root", LevelOK, root)
+	add("Repo root", LevelOk, root)
 
 	// 2. Config validity
 	configPath := config.GetConfigPath(root)
@@ -49,17 +55,17 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 	if _, err := os.Stat(configPath); err == nil {
 		data, err := os.ReadFile(configPath)
 		if err != nil {
-			add("Config", LevelERROR, fmt.Sprintf("Failed to read config: %v", err))
+			add("Config", LevelError, fmt.Sprintf("failed to read config: %v", err))
 		} else {
 			var temp map[string]interface{}
 			if err := json.Unmarshal(data, &temp); err != nil {
-				add("Config", LevelERROR, fmt.Sprintf("Invalid JSON: %v", err))
+				add("Config", LevelError, fmt.Sprintf("invalid JSON: %v", err))
 			} else {
 				unknown, _ := config.CheckUnknownKeys(root)
 				if len(unknown) > 0 {
-					add("Config", LevelWARN, fmt.Sprintf("Unknown keys: %v", unknown))
+					add("Config", LevelWarn, fmt.Sprintf("unknown keys: %v", unknown))
 				} else {
-					add("Config", LevelOK, "Valid")
+					add("Config", LevelOk, "valid")
 				}
 			}
 		}
@@ -71,7 +77,7 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 			cfg = &config.Config{}
 		}
 	} else {
-		add("Config", LevelOK, "Not present (using defaults)")
+		add("Config", LevelOk, "not present (using defaults)")
 		cfg = &config.Config{}
 	}
 
@@ -80,13 +86,13 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 	if defaultBranch == "" {
 		detected, err := git.GetDefaultBranch()
 		if err != nil {
-			add("Default branch", LevelERROR, "Could not determine default branch via origin/HEAD. Please set 'defaultBranch' in config.")
+			add("Default branch", LevelError, "could not determine default branch via origin/HEAD. Please set 'defaultBranch' in config.")
 		} else {
 			defaultBranch = detected
-			add("Default branch", LevelOK, defaultBranch)
+			add("Default branch", LevelOk, defaultBranch)
 		}
 	} else {
-		add("Default branch", LevelOK, fmt.Sprintf("%s (override)", defaultBranch))
+		add("Default branch", LevelOk, fmt.Sprintf("%s (override)", defaultBranch))
 	}
 
 	// 4. Worktree base directory writability
@@ -97,25 +103,25 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 		// wtRoot exists, check if writable (best effort check)
 		f, err := os.Create(filepath.Join(wtRoot, ".wt.tmp"))
 		if err != nil {
-			add("Worktree base", LevelERROR, fmt.Sprintf("Directory %s is not writable: %v", wtRoot, err))
+			add("Worktree base", LevelError, fmt.Sprintf("directory %s is not writable: %v", wtRoot, err))
 		} else {
 			_ = f.Close()
 			_ = os.Remove(f.Name())
-			add("Worktree base", LevelOK, wtRoot)
+			add("Worktree base", LevelOk, wtRoot)
 		}
 	} else {
 		// wtRoot doesn't exist, check parent
 		if _, err := os.Stat(parent); err == nil {
 			f, err := os.Create(filepath.Join(parent, ".wt.tmp"))
 			if err != nil {
-				add("Worktree base", LevelERROR, fmt.Sprintf("Parent directory %s is not writable: %v", parent, err))
+				add("Worktree base", LevelError, fmt.Sprintf("parent directory %s is not writable: %v", parent, err))
 			} else {
 				_ = f.Close()
 				_ = os.Remove(f.Name())
-				add("Worktree base", LevelOK, fmt.Sprintf("%s (to be created)", wtRoot))
+				add("Worktree base", LevelOk, fmt.Sprintf("%s (to be created)", wtRoot))
 			}
 		} else {
-			add("Worktree base", LevelERROR, fmt.Sprintf("Parent directory %s does not exist", parent))
+			add("Worktree base", LevelError, fmt.Sprintf("parent directory %s does not exist", parent))
 		}
 	}
 
@@ -124,15 +130,15 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 		for _, p := range cfg.WorktreeCopyPatterns {
 			matches, err := filepath.Glob(filepath.Join(root, p))
 			if err != nil {
-				add("Copy patterns", LevelWARN, fmt.Sprintf("Pattern %q is invalid: %v", p, err))
+				add("Copy patterns", LevelWarn, fmt.Sprintf("pattern %q is invalid: %v", p, err))
 			} else if len(matches) == 0 {
-				add("Copy patterns", LevelWARN, fmt.Sprintf("Pattern %q matches nothing in repo", p))
+				add("Copy patterns", LevelWarn, fmt.Sprintf("pattern %q matches nothing in repo", p))
 			} else {
 				// Check if any matched file is tracked by git
 				for _, m := range matches {
 					rel, _ := filepath.Rel(root, m)
 					if git.IsTracked(root, rel) {
-						add("Copy patterns", LevelWARN, fmt.Sprintf("File %q is tracked by git; worktreeCopyPattern is redundant for it", rel))
+						add("Copy patterns", LevelWarn, fmt.Sprintf("file %q is tracked by git; worktreeCopyPattern is redundant for it", rel))
 					}
 				}
 			}
@@ -149,7 +155,7 @@ func RunHealthCheck() ([]HealthCheck, bool) {
 				continue
 			}
 			if other, exists := mapping[dir]; exists {
-				add("Collisions", LevelWARN, fmt.Sprintf("Branches %q and %q will both map to directory %q", b, other, dir))
+				add("Collisions", LevelWarn, fmt.Sprintf("branches %q and %q will both map to directory %q", b, other, dir))
 			}
 			mapping[dir] = b
 		}

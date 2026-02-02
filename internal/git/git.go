@@ -14,6 +14,19 @@ type Worktree struct {
 	Branch string
 }
 
+// Constants for git references and special values
+const (
+	// DetachedBranchName is the placeholder for detached HEAD state
+	DetachedBranchName = "(detached)"
+	// OriginHeadRef is the git reference for the remote default branch
+	OriginHeadRef = "refs/remotes/origin/HEAD"
+	// LocalBranchPrefix is the prefix for local branch references
+	LocalBranchPrefix = "refs/heads/"
+	// RemoteBranchPrefix is the prefix for remote branch references
+	RemoteBranchPrefix = "refs/remotes/origin/"
+)
+
+// run executes a git command and returns the output
 func run(dir string, args ...string) ([]byte, error) {
 	start := time.Now()
 	cmd := exec.Command("git", args...)
@@ -23,6 +36,7 @@ func run(dir string, args ...string) ([]byte, error) {
 	return out, err
 }
 
+// runWithStderr executes a git command and returns stdout, stderr, and error
 func runWithStderr(dir string, args ...string) ([]byte, []byte, error) {
 	start := time.Now()
 	cmd := exec.Command("git", args...)
@@ -63,7 +77,7 @@ func ListWorktrees() ([]Worktree, error) {
 			if current.Path != "" {
 				// Flush previous worktree if it didn't have a branch (detached)
 				if current.Branch == "" {
-					current.Branch = "(detached)"
+					current.Branch = DetachedBranchName
 				}
 				worktrees = append(worktrees, current)
 			}
@@ -72,13 +86,13 @@ func ListWorktrees() ([]Worktree, error) {
 			}
 		} else if strings.HasPrefix(line, "branch ") {
 			ref := strings.TrimPrefix(line, "branch ")
-			current.Branch = strings.TrimPrefix(ref, "refs/heads/")
+			current.Branch = strings.TrimPrefix(ref, LocalBranchPrefix)
 		}
 	}
 	// Final flush
 	if current.Path != "" {
 		if current.Branch == "" {
-			current.Branch = "(detached)"
+			current.Branch = DetachedBranchName
 		}
 		worktrees = append(worktrees, current)
 	}
@@ -116,7 +130,7 @@ func GetRepoRoot() (string, error) {
 // GetDefaultBranch returns the default branch name (e.g., main or master)
 func GetDefaultBranch() (string, error) {
 	// Only check remote default branch via origin/HEAD
-	out, err := run("", "symbolic-ref", "refs/remotes/origin/HEAD")
+	out, err := run("", "symbolic-ref", OriginHeadRef)
 	if err == nil {
 		parts := strings.Split(strings.TrimSpace(string(out)), "/")
 		return parts[len(parts)-1], nil
@@ -127,8 +141,8 @@ func GetDefaultBranch() (string, error) {
 
 // BranchExists checks if a branch exists locally or on origin
 func BranchExists(branch string) (bool, bool) {
-	_, errLocal := run("", "show-ref", "--verify", "--quiet", "refs/heads/"+branch)
-	_, errRemote := run("", "show-ref", "--verify", "--quiet", "refs/remotes/origin/"+branch)
+	_, errLocal := run("", "show-ref", "--verify", "--quiet", LocalBranchPrefix+branch)
+	_, errRemote := run("", "show-ref", "--verify", "--quiet", RemoteBranchPrefix+branch)
 	return errLocal == nil, errRemote == nil
 }
 

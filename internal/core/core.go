@@ -22,6 +22,9 @@ const branchNamePattern = `^[a-zA-Z0-9\-_.]+$`
 // branchNameRegex is compiled once for performance.
 var branchNameRegex = regexp.MustCompile(branchNamePattern)
 
+// DefaultLockTimeout is the timeout for acquiring the repository lock
+const DefaultLockTimeout = 5 * time.Second
+
 // RepoEnv holds the common environment needed for worktree operations
 type RepoEnv struct {
 	Root          string
@@ -147,7 +150,7 @@ func EnsureWorktree(branch, base string) (string, error) {
 	}
 
 	// Concurrency Safety: Acquire lock before modification
-	unlock, err := git.AcquireLock(env.Root, 5*time.Second)
+	unlock, err := git.AcquireLock(env.Root, DefaultLockTimeout)
 	if err != nil {
 		return "", err
 	}
@@ -209,6 +212,9 @@ func EnsureWorktree(branch, base string) (string, error) {
 	return targetPath, nil
 }
 
+// checkCollisions verifies that the branch name does not collide with existing
+// worktrees or other branches that would map to the same directory name.
+// It checks both existing worktrees and all local branches.
 func checkCollisions(branch, dirName string, existing []git.Worktree) error {
 	// Check existing worktrees
 	for _, wt := range existing {
@@ -290,7 +296,7 @@ func RemoveWorktree(branch string, force bool, confirmFn func(string) bool) erro
 	}
 
 	// Concurrency Safety: Acquire lock before modification
-	unlock, err := git.AcquireLock(env.Root, 5*time.Second)
+	unlock, err := git.AcquireLock(env.Root, DefaultLockTimeout)
 	if err != nil {
 		return err
 	}
@@ -358,7 +364,7 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 
 	// Concurrency Safety: Acquire lock before modification (only if not dry run)
 	if !opts.DryRun {
-		unlock, err := git.AcquireLock(env.Root, 5*time.Second)
+		unlock, err := git.AcquireLock(env.Root, DefaultLockTimeout)
 		if err != nil {
 			return 0, nil, err
 		}
@@ -371,7 +377,7 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 		if i == 0 {
 			continue // Skip main worktree
 		}
-		if wt.Branch == "(detached)" || wt.Branch == env.DefaultBranch {
+		if wt.Branch == git.DetachedBranchName || wt.Branch == env.DefaultBranch {
 			continue
 		}
 
@@ -407,6 +413,8 @@ func PruneWorktrees(opts PruneOptions) (int, []string, error) {
 	return prunedCount, candidates, nil
 }
 
+// applyPostCreation applies post-creation configuration to a new worktree.
+// It copies files matching the configured patterns and executes post-create commands.
 func applyPostCreation(repoRoot, targetPath string, cfg *config.Config, isNewBranch bool, branch string) error {
 	// 1. Copy patterns
 	for _, pattern := range cfg.WorktreeCopyPatterns {
@@ -449,6 +457,8 @@ func applyPostCreation(repoRoot, targetPath string, cfg *config.Config, isNewBra
 	return nil
 }
 
+// copyIfMissing copies a file from src to dst only if dst does not already exist.
+// It creates the destination directory if needed.
 func copyIfMissing(src, dst string) error {
 	if _, err := os.Stat(dst); err == nil {
 		return nil // already exists
