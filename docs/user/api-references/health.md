@@ -20,7 +20,7 @@ Performs comprehensive checks on repository configuration, git setup, and worktr
 
 **Level:** ERROR
 
-**Error:** "Not in a git repository"
+**Error:** "not a git repository: <error-details>"
 
 ### 2. Configuration File
 
@@ -28,7 +28,7 @@ Performs comprehensive checks on repository configuration, git setup, and worktr
 
 **Level:** ERROR
 
-**Error:** "Invalid JSON in .wt.config.json"
+**Error:** "failed to read config: <error-details>" or "invalid JSON: <error-details>"
 
 **Level:** WARN
 
@@ -40,11 +40,7 @@ Performs comprehensive checks on repository configuration, git setup, and worktr
 
 **Level:** ERROR
 
-**Error:** "Cannot determine default branch (no config override and origin/HEAD missing)"
-
-**Level:** WARN
-
-**Warning:** "origin/HEAD is missing, using config override: <branch>"
+**Error:** "could not determine default branch via origin/HEAD. Please set 'defaultBranch' in config."
 
 **Detection rules:**
 
@@ -82,9 +78,9 @@ Performs comprehensive checks on repository configuration, git setup, and worktr
 
 **Check:** No two branches sanitize to the same directory name.
 
-**Level:** ERROR
+**Level:** WARN
 
-**Error:** "Branch collision detected: <branch1> and <branch2> both sanitize to <directory>"
+**Warning:** "branches <branch1> and <branch2> will both map to directory <directory>"
 
 **Collision examples:**
 
@@ -97,7 +93,6 @@ Human-readable list of checks, one per line:
 
 ```
 [OK] Repository root: /path/to/repo
-[WARN] origin/HEAD is missing, using config override: main
 [OK] Default branch: main
 [OK] Worktree base directory: /path/to/repo.wt (writable)
 [WARN] Copy patterns match no files in repository
@@ -130,8 +125,8 @@ $ wt health
 ```bash
 $ wt health
 [OK] Repository root: /Users/dev/myproject
-[ERROR] Invalid JSON in .wt.config.json: syntax error at line 5
-[ERROR] Cannot determine default branch (no config override and origin/HEAD missing)
+[ERROR] failed to read config: <error-details>
+[ERROR] could not determine default branch via origin/HEAD. Please set 'defaultBranch' in config.
 [OK] Worktree base directory: /Users/dev/myproject.wt (writable)
 ```
 
@@ -141,7 +136,6 @@ $ wt health
 $ wt health
 [OK] Repository root: /Users/dev/myproject
 [WARN] Unknown config keys: foo, bar
-[WARN] origin/HEAD is missing, using config override: main
 [OK] Default branch: main
 [OK] Worktree base directory: /Users/dev/myproject.wt (writable)
 [OK] Post-create commands: valid
@@ -156,7 +150,7 @@ $ wt health
 [OK] Config: valid JSON
 [OK] Default branch: main
 [OK] Worktree base directory: /Users/dev/myproject.wt (writable)
-[ERROR] Branch collision detected: feature/user-api and feature/user_api both sanitize to feature-user-api
+[WARN] branches "feature/user-api" and "feature/user_api" will both map to directory "feature-user-api"
 [OK] No other collisions detected
 ```
 
@@ -195,8 +189,7 @@ $ wt health
 **Solutions:**
 
 1. Rename one of the branches
-2. Use custom `worktreePathTemplate` to avoid collision
-3. Accept this as a v1 limitation (collisions cause errors)
+2. Accept this as a v1 limitation (collisions cause errors)
 
 ### "Cannot create/write to worktree base directory"
 

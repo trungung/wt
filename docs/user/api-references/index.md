@@ -7,7 +7,7 @@ This section provides a detailed, flag-by-flag reference for every `wt` command 
 | Command         | Description                                                                                   | Reference                   |
 | :-------------- | :-------------------------------------------------------------------------------------------- | :-------------------------- |
 | `wt`            | List all existing worktrees.                                                                  | [List](list.md)             |
-| `wt <branch>`   | The primary command to ensure a worktree exists for a given branch, creating it if necessary. | [Ensure](ensure.md)         |
+| `wt <branch>`   | Ensure a worktree exists for a branch (creates if needed). Supports `--from <base>` flag. | [Ensure](ensure.md)         |
 | `wt init`       | Initializes the `.wt.config.json` file in the repository root.                                | [Init](init.md)             |
 | `wt exec`       | Executes a command inside the specified worktree's directory.                                 | [Exec](exec.md)             |
 | `wt remove`     | Removes a worktree and optionally its associated branch.                                      | [Remove](remove.md)         |

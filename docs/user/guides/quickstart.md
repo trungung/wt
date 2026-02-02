@@ -205,7 +205,7 @@ Add `wt` to your PATH or create a symlink:
 
 ```bash
 echo 'export PATH=$PATH:/usr/local/bin' >> ~/.zshrc
-source ~/.zsh/completions/_wt
+source ~/.zshrc
 ```
 
 ### `wt init` fails with "could not auto-detect default branch"
@@ -219,15 +219,30 @@ wt init
 
 ### Worktree collision error
 
-Two branches sanitize to the same directory name. Example:
+Two branches map to the same directory name. Example:
 
 - `feature/user-api` → `feature-user-api`
 - `feature/user_api` → `feature-user-api` (collision)
 
-Solutions:
+**Error message:**
+```
+Error: collision: branch "feature/user_api" maps to same directory "feature-user-api" as existing worktree for branch "feature/user-api"
+```
 
-- Rename branches
-- Use custom `worktreePathTemplate`
-- Accept this as a limitation (v1 fails on collisions)
+**Solution:**
+
+Rename one of the branches to use a different directory mapping:
+
+```bash
+# Option 1: Rename the new branch before creating worktree
+git branch -m feature/user_api feature/user-api-fix
+wt feature/user-api-fix
+
+# Option 2: Remove the existing worktree first
+wt remove feature/user-api
+wt feature/user_api
+```
+
+**Note:** The `worktreePathTemplate` config only changes the base directory (where `.wt/` is located), not the individual worktree naming. It cannot resolve branch name collisions.
 
 See [Configuration Reference](../api-references/configuration.md) for sanitization rules.

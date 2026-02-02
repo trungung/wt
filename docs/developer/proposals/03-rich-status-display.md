@@ -1,3 +1,10 @@
+⚠️ **NOT IMPLEMENTED**
+
+This document describes a proposed feature that is **not yet implemented** in `wt`. 
+For currently available features, see the [API Reference](../../user/api-references/index.md).
+
+---
+
 # Proposal 3: Rich Status Display with Git Awareness
 
 **Status:** Proposed

@@ -175,8 +175,7 @@ Branches not merged into default branch are skipped.
 
 ```bash
 $ wt prune
-Skipping feature/new-auth (dirty)
-Skipping feature/payment (dirty)
+Skipping <branch-name>: worktree is dirty (use --force to prune)
 Pruned 1 worktree.
 ```
 

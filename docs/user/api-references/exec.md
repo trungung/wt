@@ -98,8 +98,7 @@ $ wt exec main -- npm run build
 
 ```bash
 $ wt exec nonexistent-branch -- ls
-Error: worktree not found for branch: nonexistent-branch
-Available worktrees: main, feature/new-auth, feature/payment
+Error: no worktree exists for branch "nonexistent-branch"
 ```
 
 ## Error Handling
@@ -114,8 +113,8 @@ Error: missing command after --
 ### Worktree not found
 
 ```bash
-$ wt exec nonexistent-branch -- ls
-Error: worktree not found for branch: nonexistent-branch
+$ wt exec <branch-name> -- <command>
+Error: no worktree exists for branch "<branch-name>"
 ```
 
 Exit code: 1

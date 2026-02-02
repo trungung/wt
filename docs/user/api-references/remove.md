@@ -70,8 +70,7 @@ If target worktree is dirty and `--force` not provided:
 
 ```bash
 $ wt remove feature/new-auth
-Warning: worktree 'feature/new-auth' has uncommitted changes
-Remove anyway? [y/N] n
+Worktree feature/new-auth is dirty. Remove anyway? [y/N] n
 # Exits without removing
 ```
 
@@ -116,22 +115,14 @@ Deleted branch: feature/new-auth
 
 ```bash
 $ wt remove main
-Error: cannot remove default branch worktree
+Error: refusing to remove default branch/main worktree
 ```
 
 ### Main Worktree
 
 The main repository worktree (not in `.wt/`) is never removable via `wt remove`.
 
-### Branch Currently Checked Out
 
-If branch is currently checked out in main worktree:
-
-```bash
-$ wt remove feature/new-auth
-Warning: branch 'feature/new-auth' is currently checked out in main worktree
-Branch will not be deleted (but worktree removed)
-```
 
 ## Examples
 

@@ -62,7 +62,7 @@ import (
 ### Error Handling
 
 - Wrap errors with context: `return fmt.Errorf("failed to load config: %w", err)`
-- Use error types for complex scenarios (e.g., `RollbackError` in core/core.go:73)
+- Use error types for complex scenarios (e.g., `RollbackError` in core/core.go:101)
 - Use `errors.As` for type checking errors
 - Always check and return errors, never ignore them
 - Use named returns only when necessary for clarity

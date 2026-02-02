@@ -107,8 +107,7 @@ If `postCreateCmd` fails or worktree creation fails, `wt` performs automatic rol
 
 ```bash
 $ wt feature/new-auth
-Error: post-create command failed: npm install
-Rollback status: Removed worktree, deleted branch feature/new-auth
+Error: postCreateCmd 'npm install' failed: exit status 1 (rollback: succeeded (worktree removed, branch deleted))
 ```
 
 **Limitation:** Rollback does not undo side effects from post-create commands (e.g., global caches, network requests).
@@ -168,9 +167,7 @@ $ wt feature/new-auth
 ## Exit Codes
 
 - `0`: Success
-- `1`: Failure (including collisions, dirty worktree checks, post-create failures after rollback)
-- `2`: Invalid branch name (illegal characters)
-- `3`: Collision detected (two branches sanitize to same directory)
+- `1`: Failure (worktree not found, collision detected, post-create command failed, permission denied, etc.)
 
 ## See Also
 
