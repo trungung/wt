@@ -308,8 +308,8 @@ func TestIntegration(t *testing.T) {
 		if err == nil {
 			t.Errorf("health check should have failed for invalid config, but succeeded")
 		}
-		if !strings.Contains(string(outBytes), "[ERROR] Config: Invalid JSON") {
-			t.Errorf("expected error message to contain '[ERROR] Config: Invalid JSON', got: %s", string(outBytes))
+		if !strings.Contains(string(outBytes), "[ERROR] Config: invalid JSON") {
+			t.Errorf("expected error message to contain '[ERROR] Config: invalid JSON', got: %s", string(outBytes))
 		}
 
 		// Restore valid config
