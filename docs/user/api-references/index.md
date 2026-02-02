@@ -14,6 +14,7 @@ This section provides a detailed, flag-by-flag reference for every `wt` command 
 | `wt prune`      | Removes worktrees whose branches have been merged into the default branch.                    | [Prune](prune.md)           |
 | `wt health`     | Validates the configuration and environment, diagnosing potential issues.                     | [Health](health.md)         |
 | `wt completion` | Generates shell completion scripts for Zsh.                                                   | [Completion](completion.md) |
+| `wt shell-setup`| Generates shell wrapper function for easier navigation (supports zsh, bash, fish).        | [Shell Setup](shell-setup.md)   |
 
 ---
 

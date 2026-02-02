@@ -191,6 +191,37 @@ autoload -Uz _wt
 compdef _wt wt
 ```
 
+## Easy Navigation with `wt cd`
+
+Setup the shell wrapper for seamless navigation:
+
+```bash
+# Add shell wrapper to your config
+wt shell-setup zsh >> ~/.zshrc
+source ~/.zshrc
+
+# Use wt cd to navigate (creates worktree if needed)
+wt cd feature/new-auth
+```
+
+The `wt cd` command:
+
+- Creates the worktree if it doesn't exist
+- Changes your shell's working directory to the worktree
+- Silently navigates (like normal `cd`)
+
+Supported shells: zsh, bash, fish
+
+```bash
+# Before: Manual navigation
+$ wt feature/new-auth
+/path/to/repo.wt/feature-new-auth
+$ cd /path/to/repo.wt/feature-new-auth
+
+# After: Seamless navigation
+$ wt cd feature/new-auth
+```
+
 ## Next Steps
 
 - [Configuration Reference](../api-references/configuration.md) - All configuration options

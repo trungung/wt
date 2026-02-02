@@ -108,6 +108,13 @@ var initCmd = &cobra.Command{
 		}
 
 		fmt.Println(configPath)
+
+		if !initYes {
+			fmt.Println()
+			fmt.Println("💡 Tip: Enable seamless navigation with:")
+			fmt.Println("   wt shell-setup zsh >> ~/.zshrc && source ~/.zshrc")
+			fmt.Println()
+		}
 		return nil
 	},
 }

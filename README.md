@@ -66,6 +66,21 @@ Create a worktree for a new branch, execute commands inside it, and remove it wh
 | `wt exec feature/payment -- npm test` | Run command in the worktree directory          |
 | `wt prune`                            | Automatically remove merged worktrees          |
 
+### 4. Easy Navigation (Recommended)
+
+Set up seamless navigation to worktrees:
+
+```bash
+# One-time setup
+wt shell-setup zsh >> ~/.zshrc
+source ~/.zshrc
+
+# Now navigate easily
+wt cd feature/new-auth    # Creates worktree if needed and changes directory
+```
+
+The `wt cd` command creates the worktree (if needed) and changes your shell's working directory to it. Supported shells: zsh, bash, fish.
+
 For comprehensive setup and examples, see the [Quickstart Guide](docs/user/guides/quickstart.md).
 
 ---
