@@ -127,15 +127,7 @@ feature/new-auth /path/to/repo.wt/feature-new-auth
 feature/payment /path/to/repo.wt/feature-payment
 ```
 
-### 4. Execute Commands in Worktree
-
-```bash
-wt exec feature/new-auth -- npm test
-```
-
-This runs `npm test` with working directory set to `feature/new-auth`'s worktree.
-
-### 5. Remove Worktrees
+### 4. Remove Worktrees
 
 ```bash
 # Remove specific worktree
@@ -151,7 +143,7 @@ wt remove
 wt remove feature/new-auth --force
 ```
 
-### 6. Prune Merged Worktrees
+### 5. Prune Merged Worktrees
 
 Remove worktrees whose branches are merged into default branch:
 
@@ -169,48 +161,34 @@ Fetch before pruning:
 wt prune --fetch
 ```
 
-## Shell Completions
+## Shell Setup (Completions + Navigation)
 
-- **Homebrew installs**: PATH and zsh completions are configured automatically.
-- **Go or binary installs**: add `wt` to your PATH and set up zsh completions manually.
-
-Enable tab completion and ghost suggestions in Zsh:
-
-```zsh
-# Add to ~/.zshrc
-source <(wt completion zsh)
-```
-
-If completions don't load, manually add to fpath:
-
-```zsh
-mkdir -p ~/.zsh/completions
-wt completion zsh > ~/.zsh/completions/_wt
-fpath=(~/.zsh/completions $fpath)
-autoload -Uz _wt
-compdef _wt wt
-```
-
-## Easy Navigation with `wt cd`
-
-Setup the shell wrapper for seamless navigation:
+The recommended way to set up `wt` is with `shell-setup`, which configures both tab completions and the `wt cd` navigation command:
 
 ```bash
-# Add shell wrapper to your config
-wt shell-setup zsh >> ~/.zshrc
-source ~/.zshrc
-
-# Use wt cd to navigate (creates worktree if needed)
-wt cd feature/new-auth
+# Add to your shell config (one line does everything)
+eval "$(wt shell-setup)"
 ```
 
-The `wt cd` command:
+This works for **zsh**, **bash**, and **fish**. After adding, reload your shell:
 
-- Creates the worktree if it doesn't exist
-- Changes your shell's working directory to the worktree
-- Silently navigates (like normal `cd`)
+```bash
+source ~/.zshrc   # or ~/.bashrc
+```
 
-Supported shells: zsh, bash, fish
+### What You Get
+
+**Tab completions** for commands, branches, and flags:
+
+```bash
+$ wt <TAB>
+completion  health  init  prune  remove  shell-setup
+
+$ wt feature/<TAB>
+feature/new-auth  feature/payment
+```
+
+**The `wt cd` command** for seamless navigation:
 
 ```bash
 # Before: Manual navigation
@@ -218,9 +196,13 @@ $ wt feature/new-auth
 /path/to/repo.wt/feature-new-auth
 $ cd /path/to/repo.wt/feature-new-auth
 
-# After: Seamless navigation
+# After: Seamless navigation (creates worktree if needed)
 $ wt cd feature/new-auth
 ```
+
+### Homebrew Users
+
+Homebrew sets up PATH automatically, but you still need to add `eval "$(wt shell-setup)"` to get completions and `wt cd`.
 
 ## Next Steps
 

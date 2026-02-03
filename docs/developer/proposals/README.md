@@ -14,7 +14,7 @@ These proposals emerged from a comprehensive analysis of the codebase, documenta
 
 ### Must Have
 
-1. **[Shell cd Integration](01-shell-cd-integration.md)**
+1. **[Shell cd Integration](01-shell-cd-integration.md)** ✅ IMPLEMENTED
    - **Effort:** 1 hour | **Confidence:** 99% | **Impact:** 10/10
    - Enable automatic directory navigation after worktree creation
    - Eliminates #1 daily friction point
@@ -34,7 +34,7 @@ These proposals emerged from a comprehensive analysis of the codebase, documenta
    - Dramatically improves visibility
    - Uses existing lipgloss dependency
 
-5. **[Bash and Fish Completions](05-bash-fish-completions.md)**
+5. **[Bash and Fish Completions](05-bash-fish-completions.md)** ✅ IMPLEMENTED
    - **Effort:** 1-2 hours | **Confidence:** 95% | **Impact:** 6/10
    - Remove adoption barrier for non-zsh users
    - Cobra handles all the complexity
@@ -54,11 +54,11 @@ These proposals emerged from a comprehensive analysis of the codebase, documenta
 
 | # | Feature | Priority | Effort | Risk | Confidence | Impact |
 |---|---------|----------|--------|------|------------|--------|
-| 1 | Shell cd integration | Must Have | 1h | None | 99% | 10/10 |
+| 1 | Shell cd integration | ✅ Implemented | 1h | None | 99% | 10/10 |
 | 2 | wt run command | Should Have | 2-3h | Very Low | 95% | 9/10 |
 | 3 | Rich status display | Should Have | 4-6h | Low | 90% | 8/10 |
 | 4 | Lifecycle hooks | Could Have | 6-8h | Medium | 85% | 7/10 |
-| 5 | Bash/Fish completions | Should Have | 1-2h | Very Low | 95% | 6/10 |
+| 5 | Bash/Fish completions | ✅ Implemented | 1-2h | Very Low | 95% | 6/10 |
 
 ---
 

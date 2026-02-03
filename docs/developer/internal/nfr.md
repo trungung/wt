@@ -53,11 +53,11 @@
 
 - **X1 OS support:** macOS + Linux (v1). Windows optional but not required.
 - **X2 Installability:** single static-ish binary; no runtime dependencies besides `git` and a POSIX shell for postCreate (documented).
-- **X3 Shell compatibility:** zsh support documented; completion script provided. (Bash/fish optional later.)
+- **X3 Shell compatibility:** zsh, bash, and fish completions supported via `wt completion` and `wt shell-setup`.
 
 ### 6) Security & Trust
 
-- **S1 Safe command execution:** `wt exec` and postCreate must not do unexpected shell interpolation beyond what user configured.
+- **S1 Safe command execution:** postCreate commands must not do unexpected shell interpolation beyond what user configured.
 - **S2 Avoid leaking secrets:** do not print `.env` contents; avoid verbose logs unless debug enabled.
 - **S3 No network calls unless requested:** reinforces trust.
 - **S4 Config trust model:** config is repo-local; treat it like code—document that running postCreate executes commands from the repo config.

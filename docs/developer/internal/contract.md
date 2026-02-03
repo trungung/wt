@@ -21,12 +21,12 @@ A fast, branch-centric `git worktree` helper that makes worktrees feel “branch
 
 - `wt` — list worktrees (`branch<TAB>path`).
 - `wt <branch> [--from <base>]` — ensure/create worktree; create new branch from base if needed.
-- `wt exec <branch> -- <command...>` — execute inside worktree; default branch runs in `$REPO_PATH`.
 - `wt remove [branch] [--force]` — remove worktree; warn/confirm if dirty.
 - `wt prune [--dry-run] [--force] [--fetch]` — prune worktrees merged into default branch; refuse dirty unless forced.
 - `wt init [--yes]` — create config interactively or with defaults; requires manual input if `origin/HEAD` missing.
 - `wt health` — validate config + environment; error if default branch cannot be determined.
-- `wt completion <shell>` — generate shell completion script.
+- `wt completion <shell>` — generate shell completion script (zsh, bash, fish).
+- `wt shell-setup [shell]` — generate shell wrapper function + completions for easy navigation.
 
 ### Config
 
@@ -49,10 +49,10 @@ A fast, branch-centric `git worktree` helper that makes worktrees feel “branch
 
 ### Shell integration
 
-- Provide zsh completion support that suggests only:
+- Provide completion support for zsh, bash, and fish that suggests:
   - subcommands
-  - **existing worktree branches**
-- Must be compatible with zsh-autocomplete “ghost” suggestions (Tab not required).
+  - branch names (all local branches for `wt <branch>`, existing worktree branches for `wt remove`)
+- `wt shell-setup` provides `wt cd` navigation and completions for easy setup.
 
 ---
 
@@ -69,7 +69,7 @@ A fast, branch-centric `git worktree` helper that makes worktrees feel “branch
 - Provider APIs (GitHub/GitLab) for PR-merged detection.
 - Multi-remote support (anything beyond `origin`).
 - `fzf` dependency (interactive selection must work without it).
-- `wt <branch> <script>` shorthand or `wt run`.
+- `wt run` command (use `wt cd` + shell commands instead).
 - Background daemon; watching/syncing files continuously.
 - Automatic collision resolution (no hashing/suffixing).
 
@@ -84,6 +84,7 @@ A fast, branch-centric `git worktree` helper that makes worktrees feel “branch
 - `prune` targets branches merged into default branch (git ancestry-based).
 - Post-create failure triggers rollback (worktree removed; branch removed if created).
 - `.wt.config.json` can be created via `wt init` and validated via `wt health`.
-- zsh completion suggests only subcommands + existing worktree branches.
+- Shell completions (zsh, bash, fish) suggest subcommands + branches.
+- `wt shell-setup` provides `wt cd` navigation and completions.
 
 ---

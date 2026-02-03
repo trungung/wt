@@ -10,7 +10,9 @@ wt completion <shell>
 
 ## Description
 
-Outputs completion script to stdout for the specified shell. Save or source this script to enable tab completion. Homebrew installs completion automatically; Go or binary installs require manual PATH/completion setup (see Quickstart PATH snippet).
+Outputs completion script to stdout for the specified shell. Save or source this script to enable tab completion.
+
+**Note:** If you use `eval "$(wt shell-setup)"`, completions are already included. You don't need to set up completions separately.
 
 ## Arguments
 
@@ -20,54 +22,46 @@ Shell to generate completions for.
 
 **Supported values:**
 
-- `zsh` (only shell supported in v1)
+- `zsh`
+- `bash`
+- `fish`
 
-## Supported Shells
+## Installation
 
-### Zsh
+### Recommended: Use shell-setup (includes completions)
 
-Generate Zsh completion script:
+The easiest way to set up completions is via `wt shell-setup`, which includes both the `wt cd` wrapper and completions:
 
 ```bash
-wt completion zsh
+# Add to your shell config file
+eval "$(wt shell-setup)"
 ```
 
-**Installation methods:**
+This works for zsh, bash, and fish.
 
-#### Method 1: Source directly (recommended)
+### Standalone Completion Setup
 
-Add to `~/.zshrc`:
+If you only want completions (without the `wt cd` wrapper):
+
+#### Zsh
 
 ```zsh
+# Add to ~/.zshrc
 source <(wt completion zsh)
 ```
 
-**Enable ghost suggestions (zsh-autosuggestions):**
+#### Bash
 
-```zsh
-# In ~/.zshrc
-ZSH_AUTOSUGGEST_STRATEGY=(completion history)
-source <(wt completion zsh)
+```bash
+# Add to ~/.bashrc
+source <(wt completion bash)
 ```
 
-#### Method 2: Manually add to fpath
+#### Fish
 
-If completions aren't loading with Method 1:
-
-```zsh
-mkdir -p ~/.zsh/completions
-wt completion zsh > ~/.zsh/completions/_wt
-fpath=(~/.zsh/completions $fpath)
-autoload -Uz _wt
-compdef _wt wt
-```
-
-Then add to `~/.zshrc`:
-
-```zsh
-fpath=(~/.zsh/completions $fpath)
-autoload -Uz _wt
-compdef _wt wt
+```fish
+# Add to ~/.config/fish/config.fish
+wt completion fish | source
 ```
 
 ## Completion Behavior
@@ -78,56 +72,67 @@ After entering `wt` and pressing Tab:
 
 ```bash
 $ wt <TAB>
-completion  exec      health     init       prune      remove     --version
+completion  health     init       prune      remove     shell-setup  --help  --version
 ```
 
 ### Branch Completion
 
-For commands that accept branch names (e.g., `wt <branch>`, `wt exec <branch>`), Tab shows existing worktree branches:
+For `wt <branch>`, Tab shows all local branches:
 
 ```bash
 $ wt <TAB>
-feature/new-auth  feature/payment  main
+feature/new-auth  feature/payment  main  develop
 ```
 
 ### Subcommand Completion
 
-For subcommands (e.g., `remove`), Tab suggests worktree branches:
+For subcommands like `remove`, Tab suggests existing worktree branches:
 
 ```bash
 $ wt remove <TAB>
 feature/new-auth  feature/payment
 ```
 
+### Flag Completion
+
+Flags are also completed:
+
+```bash
+$ wt --<TAB>
+--from  --help  --version
+
+$ wt remove --<TAB>
+--force  --help
+```
+
 ## Examples
 
-### Generate Zsh completions
+### Generate completions for your shell
 
 ```bash
-$ wt completion zsh
-#compdef wt
-# Output: complete completion script
+# Zsh
+wt completion zsh
+
+# Bash
+wt completion bash
+
+# Fish
+wt completion fish
 ```
 
-### Save to file
+### Save to file (alternative installation)
 
 ```bash
+# Zsh
+mkdir -p ~/.zsh/completions
 wt completion zsh > ~/.zsh/completions/_wt
-```
 
-### Test completions
+# Bash
+wt completion bash > ~/.wt-completion.bash
+echo 'source ~/.wt-completion.bash' >> ~/.bashrc
 
-After installation:
-
-```bash
-$ wt comp<TAB>
-# Completes to: wt completion
-
-$ wt exec f<TAB>
-# Completes to: wt exec feature/new-auth
-
-$ wt exec feature/<TAB>
-# Shows: feature/new-auth, feature/payment
+# Fish
+wt completion fish > ~/.config/fish/completions/wt.fish
 ```
 
 ## Exit Codes
@@ -135,11 +140,7 @@ $ wt exec feature/<TAB>
 - `0`: Success
 - `1`: Unsupported shell
 
-## Future Shells
-
-Additional shells (Bash, Fish) may be added in future releases. Vote or contribute to track progress.
-
 ## See Also
 
-- [Quickstart Guide](../guides/quickstart.md#shell-completions) - Installation instructions
-- [Command Reference](list.md) - List all commands
+- [Shell Setup](shell-setup.md) - Combined wrapper + completions setup
+- [Quickstart Guide](../guides/quickstart.md) - Installation instructions

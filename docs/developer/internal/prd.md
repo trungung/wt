@@ -24,7 +24,7 @@
 - GitHub/GitLab API integration (PR-aware merge status).
 - Multi-remote support beyond `origin`.
 - `fzf` dependency.
-- `wt <branch> <script>` shorthand; v1 uses explicit `wt exec`.
+- `wt run` command (use `wt cd` + shell commands instead).
 - Ongoing file sync; file copy is bootstrap-only.
 
 ---
@@ -191,23 +191,21 @@ Rollback does not undo external side effects performed by postCreate commands ou
 
 ---
 
-### 4.3 `wt exec <branch> -- <command...>`
+### 4.3 `wt shell-setup [shell]`
 
-**Purpose:** run an arbitrary command inside a branch’s worktree.
+**Purpose:** generate shell wrapper function and completions for easy navigation.
 
 **Behavior:**
 
-- Requires `--` delimiter.
-- resolves target directory:
-  - default branch → `$REPO_PATH`
-  - other branch → resolve existing worktree; **fail if it does not exist**.
-- Execute `<command...>` with working directory set to resolved path.
-- Inherit stdin/stdout/stderr.
-- Exit code equals executed command’s exit code.
+- Auto-detects shell from `$SHELL` if not specified.
+- Outputs shell function that wraps `wt` to add `wt cd <branch>` support.
+- Includes completion source command for the specified shell.
+- Supported shells: zsh, bash, fish.
 
-**Exit codes:**
+**Output includes:**
 
-- child exit code
+- Shell wrapper function for `wt cd` navigation
+- Completion script sourcing command
 - non-zero for usage errors (missing `--`, missing command) or ensure failures
 
 ---
@@ -343,13 +341,13 @@ Rollback does not undo external side effects performed by postCreate commands ou
 
 Completion candidates should include only:
 
-- subcommands: `init`, `exec`, `remove`, `prune`, `health`
-- existing worktree branch names (from `git worktree list --porcelain`)
+- subcommands: `init`, `remove`, `prune`, `health`, `completion`, `shell-setup`
+- branch names (all local branches for `wt <branch>`, existing worktree branches for `wt remove`)
 
 Specific:
 
+- `wt <branch>` completes all local branches.
 - `wt remove` completes only existing worktree branches.
-- `wt exec` completes existing worktree branches for `<branch>`.
-- Must be compatible with zsh-autocomplete so ghost suggestions can appear while typing (Tab not required).
+- Supported shells: zsh, bash, fish (via cobra's built-in generators).
 
 ---

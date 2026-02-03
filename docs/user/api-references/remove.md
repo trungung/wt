@@ -25,7 +25,7 @@ Branch name of worktree to remove.
 
 ## Options
 
-### `--force`, `-r`
+### `--force`, `-f`
 
 Force removal even if worktree is dirty (has uncommitted changes).
 

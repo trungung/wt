@@ -1,13 +1,14 @@
-⚠️ **NOT IMPLEMENTED**
+✅ **IMPLEMENTED**
 
-This document describes a proposed feature that is **not yet implemented** in `wt`. 
-For currently available features, see the [API Reference](../../user/api-references/index.md).
+This proposal has been implemented. Bash and fish completions are now available via `wt completion bash` and `wt completion fish`. The recommended setup is `eval "$(wt shell-setup)"` which configures both completions and the `wt cd` wrapper.
+
+For usage, see the [Completion Reference](../../user/api-references/completion.md).
 
 ---
 
 # Proposal 5: Bash and Fish Shell Completion Support
 
-**Status:** Proposed
+**Status:** Implemented
 **Priority:** SHOULD HAVE
 **Effort:** 1-2 hours
 **Confidence:** 95%

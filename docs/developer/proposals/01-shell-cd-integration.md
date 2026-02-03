@@ -1,13 +1,14 @@
-⚠️ **NOT IMPLEMENTED**
+✅ **IMPLEMENTED**
 
-This document describes a proposed feature that is **not yet implemented** in `wt`. 
-For currently available features, see the [API Reference](../../user/api-references/index.md).
+This proposal has been implemented via the `wt shell-setup` command. The recommended setup is `eval "$(wt shell-setup)"` which configures both the `wt cd` wrapper and tab completions.
+
+For usage, see the [Shell Setup Reference](../../user/api-references/shell-setup.md).
 
 ---
 
 # Proposal 1: Shell Integration Function for Directory Navigation
 
-**Status:** Proposed
+**Status:** Implemented
 **Priority:** MUST HAVE
 **Effort:** 1 hour (documentation only)
 **Confidence:** 99%

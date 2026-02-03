@@ -4,7 +4,7 @@ One of `wt`'s core strengths is providing a safe, predictable environment for pa
 
 ## The Core Value: Isolation and Context
 
-When managing multiple tasks or features, the `wt exec` command allows you to execute commands in a fresh, isolated worktree *without leaving your main repository directory*.
+When managing multiple tasks or features, each worktree provides a completely isolated environment with its own working directory, staged changes, and checked-out branch.
 
 ### Scenario: Running Two Tasks in Parallel
 
@@ -20,19 +20,31 @@ wt feature/a-fix
 wt feature/b-refactor
 ```
 
-#### 2. Parallel Development via `wt exec`
+#### 2. Parallel Development with Split Terminals
 
-You can now use split terminal panels (tmux, Ghostty, iTerm) or different agent instances, all rooted in your main worktree, to operate on the isolated environments.
+Use split terminal panels (tmux, Ghostty, iTerm) to work in different worktrees simultaneously.
 
-| Task (Agent A) | Task (Agent B) |
+| Terminal 1 | Terminal 2 |
 | :--- | :--- |
 | **Goal:** Run tests for the fix. | **Goal:** Run a local development server. |
-| **Command:** `wt exec feature/a-fix -- npm test` | **Command:** `wt exec feature/b-refactor -- npm run dev` |
-| **Context:** Runs tests in `/repo.wt/feature-a-fix` without changing your current directory. | **Context:** Starts a server in `/repo.wt/feature-b-refactor` (often run in the background with `&`). |
+| **Command:** `wt cd feature/a-fix && npm test` | **Command:** `wt cd feature/b-refactor && npm run dev` |
+| **Context:** Changes to `/repo.wt/feature-a-fix` and runs tests there. | **Context:** Changes to `/repo.wt/feature-b-refactor` and starts server. |
 
-This provides the agent (or developer) with the full file structure context of the main repo while guaranteeing that execution occurs in a clean, dependency-ready environment dedicated to a single branch.
+Each terminal operates in a completely isolated worktree with its own git state.
 
-#### 3. Cleanup and Synchronization
+#### 3. Alternative: Run Commands Without Changing Directory
+
+If you need to run a command in a worktree without changing your current directory, use subshell syntax:
+
+```bash
+# Run tests in feature/a-fix worktree from any location
+(cd "$(wt feature/a-fix)" && npm test)
+
+# Run server in background
+(cd "$(wt feature/b-refactor)" && npm run dev) &
+```
+
+#### 4. Cleanup and Synchronization
 
 When development is complete, cleanup is simple:
 

@@ -171,6 +171,6 @@ $ wt feature/new-auth
 
 ## See Also
 
-- [wt exec](exec.md) - Execute command in worktree
+- [wt cd](shell-setup.md) - Navigate to worktree directory
 - [Configuration Reference](configuration.md#worktreecopypatterns) - Copy patterns
 - [Configuration Reference](configuration.md#postcreatecmd) - Post-create commands
