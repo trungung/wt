@@ -24,11 +24,10 @@ Commands:
   wt <branch>        Ensure worktree exists for branch (creates if needed)
   wt cd <branch>     Create worktree and navigate to it (requires shell-setup)
   wt init            Create .wt.config.json
-  wt exec <branch> -- <cmd>  Run command in worktree directory
   wt remove <branch> Remove worktree
   wt prune           Remove merged worktrees
   wt health          Check configuration
-  wt shell-setup     Generate shell wrapper for easy navigation
+  wt shell-setup     Generate shell wrapper and completions
 `,
 	Version: version,
 	Args:    cobra.MaximumNArgs(1),

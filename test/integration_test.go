@@ -147,25 +147,6 @@ func TestIntegration(t *testing.T) {
 		}
 	})
 
-	// Test 6: Exec command
-	t.Run("Exec command", func(t *testing.T) {
-		out := runWt("exec", "feature/y", "--", "ls")
-		if !strings.Contains(out, "created.txt") {
-			t.Errorf("exec did not run correctly: expected output to contain created.txt, got %s", out)
-		}
-
-		// Test: exec should fail if worktree doesn't exist (no on-the-fly creation)
-		cmd := exec.Command(binPath, "exec", "non-existent-branch", "--", "ls")
-		cmd.Dir = repoPath
-		outBytes, err := cmd.CombinedOutput()
-		if err == nil {
-			t.Errorf("exec should have failed for non-existent branch, but succeeded")
-		}
-		if !strings.Contains(string(outBytes), "no worktree exists") {
-			t.Errorf("expected error message to contain 'no worktree exists', got: %s", string(outBytes))
-		}
-	})
-
 	// Test 8: Remove worktree with branch deletion
 	t.Run("Remove worktree with branch deletion", func(t *testing.T) {
 		configContent := `{

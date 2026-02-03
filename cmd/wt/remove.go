@@ -78,6 +78,6 @@ var removeCmd = &cobra.Command{
 }
 
 func init() {
-	removeCmd.Flags().BoolVarP(&forceRemove, "force", "r", false, "force removal even if dirty")
+	removeCmd.Flags().BoolVarP(&forceRemove, "force", "f", false, "force removal even if dirty")
 	rootCmd.AddCommand(removeCmd)
 }
