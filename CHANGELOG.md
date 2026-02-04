@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-02-04
+
+### Fixed
+
+- Release workflow now forces GoReleaser to use the PAT for Homebrew updates
+
 ## [0.0.4] - 2026-02-04
 
 ### Fixed
@@ -97,7 +103,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Concurrency tests for file locking mechanism
 - Health check validation tests
 
-[Unreleased]: https://github.com/trungung/wt/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/trungung/wt/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/trungung/wt/releases/tag/v0.0.5
 [0.0.4]: https://github.com/trungung/wt/releases/tag/v0.0.4
 [0.0.3]: https://github.com/trungung/wt/releases/tag/v0.0.3
 [0.0.2]: https://github.com/trungung/wt/releases/tag/v0.0.2
