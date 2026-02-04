@@ -22,19 +22,19 @@ These proposals emerged from a comprehensive analysis of the codebase, documenta
 
 ### Should Have
 
-2. **[wt run Command](02-wt-run-command.md)**
+1. **[wt run Command](02-wt-run-command.md)**
    - **Effort:** 2-3 hours | **Confidence:** 95% | **Impact:** 9/10
    - Combine ensure + exec in one idempotent command
    - Perfect for automation and CI/CD
    - ~40 lines of code leveraging existing functions
 
-3. **[Rich Status Display](03-rich-status-display.md)**
+2. **[Rich Status Display](03-rich-status-display.md)**
    - **Effort:** 4-6 hours | **Confidence:** 90% | **Impact:** 8/10
    - Show git awareness (dirty, ahead/behind, merged, stale)
    - Dramatically improves visibility
    - Uses existing lipgloss dependency
 
-5. **[Bash and Fish Completions](05-bash-fish-completions.md)** ✅ IMPLEMENTED
+3. **[Bash and Fish Completions](05-bash-fish-completions.md)** ✅ IMPLEMENTED
    - **Effort:** 1-2 hours | **Confidence:** 95% | **Impact:** 6/10
    - Remove adoption barrier for non-zsh users
    - Cobra handles all the complexity
@@ -42,7 +42,7 @@ These proposals emerged from a comprehensive analysis of the codebase, documenta
 
 ### Could Have
 
-4. **[Lifecycle Hooks System](04-lifecycle-hooks.md)**
+1. **[Lifecycle Hooks System](04-lifecycle-hooks.md)**
    - **Effort:** 6-8 hours | **Confidence:** 85% | **Impact:** 7/10
    - Enable custom pre/post operation logic
    - Powerful for teams and enterprise workflows
@@ -65,18 +65,21 @@ These proposals emerged from a comprehensive analysis of the codebase, documenta
 ## Recommended Implementation Order
 
 ### Phase 1: Quick Wins (Week 1)
+
 1. **Shell cd integration** (1 hour) - Highest impact, zero risk
 2. **Bash/Fish completions** (2 hours) - Low effort, removes adoption barrier
 
 **Total: 3 hours**
 
 ### Phase 2: Core Enhancements (Week 2)
+
 3. **wt run command** (3 hours) - High value, straightforward implementation
-4. **Rich status display** (6 hours) - Visible improvement, moderate complexity
+2. **Rich status display** (6 hours) - Visible improvement, moderate complexity
 
 **Total: 9 hours**
 
 ### Phase 3: Advanced Features (Week 3)
+
 5. **Lifecycle hooks** (12 hours) - Power user feature, needs careful design
 
 **Total: 12 hours**

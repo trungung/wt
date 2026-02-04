@@ -1,6 +1,6 @@
 ⚠️ **NOT IMPLEMENTED**
 
-This document describes a proposed feature that is **not yet implemented** in `wt`. 
+This document describes a proposed feature that is **not yet implemented** in `wt`.
 For currently available features, see the [API Reference](../../user/api-references/index.md).
 
 ---
@@ -519,6 +519,7 @@ Worktrees (4 total, 1 needs attention):
 ```
 
 **User sees immediately:**
+
 - Currently in main worktree
 - feature/auth needs attention (dirty)
 - feature/api can be pruned (merged)

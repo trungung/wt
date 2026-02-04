@@ -122,8 +122,6 @@ Error: refusing to remove default branch/main worktree
 
 The main repository worktree (not in `.wt/`) is never removable via `wt remove`.
 
-
-
 ## Examples
 
 ### Remove specific worktree

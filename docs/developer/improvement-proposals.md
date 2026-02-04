@@ -57,6 +57,7 @@ $ cd /Users/dev/repo.wt/feature-auth  # Manual copy-paste or retyping
 This is the **#1 friction point** in daily usage. Unix processes cannot change their parent shell's directory, so this requires manual intervention after every worktree creation.
 
 **Pain Points:**
+
 - Manual copy-paste of paths is error-prone
 - Breaks flow state during development
 - Requires memorizing or typing long paths
@@ -222,18 +223,21 @@ func init() {
 ### Implementation Plan
 
 #### Phase 1: Documentation (Immediate - 1 hour)
+
 1. Add "Shell Integration" section to `docs/user/guides/quickstart.md`
 2. Include copy-paste snippets for zsh, bash, and fish
 3. Add to README.md "Quick Start" section
 4. Update multi-agent workflow guide with shell integration example
 
 #### Phase 2: CLI Command (Optional - 2 hours)
+
 1. Add `shell-init` command to `cmd/wt/main.go`
 2. Embed shell scripts as string constants
 3. Add tests for output format
 4. Update completion command documentation
 
 #### Phase 3: Distribution (Homebrew - 1 hour)
+
 1. Update Homebrew formula to suggest shell integration in post-install message
 2. Consider automatic shell config detection and prompting
 
@@ -247,6 +251,7 @@ func init() {
 ### Example Usage
 
 **Current Workflow:**
+
 ```bash
 $ wt feature/auth
 /Users/dev/repo.wt/feature-auth
@@ -255,6 +260,7 @@ $ ls
 ```
 
 **With Shell Integration:**
+
 ```bash
 $ wt feature/auth
 → /Users/dev/repo.wt/feature-auth
@@ -262,6 +268,7 @@ $ ls  # Already in the directory!
 ```
 
 **Still Script-Friendly:**
+
 ```bash
 # Direct command usage preserves scriptability
 $ WORKTREE_PATH=$(command wt feature/auth)
@@ -271,29 +278,34 @@ $ docker run -v "$WORKTREE_PATH:/app" myimage
 ### Why This is Priority #1
 
 **Impact: 10/10**
+
 - Eliminates the #1 daily friction point
 - Used every single time someone creates or accesses a worktree
 - Transforms "useful tool" into "indispensable tool"
 
 **Pragmatism: 10/10**
+
 - Zero Go code changes needed for basic version
 - Pure shell functions, no binary modifications
 - Can be implemented in documentation alone
 - Optional CLI command adds convenience but not required
 
 **Risk: 0/10**
+
 - No breaking changes whatsoever
 - Completely opt-in via shell configuration
 - Falls back gracefully if function not installed
 - Shell functions are well-understood technology
 
 **User Adoption: 10/10**
+
 - Every user will immediately understand the value
 - Copy-paste installation takes 10 seconds
 - Works with existing muscle memory (still type `wt <branch>`)
 - Can be aliased or used as separate command (`wtcd`)
 
 **Confidence: 99%**
+
 - Shell functions are battle-tested patterns
 - Used by tools like `z`, `autojump`, `direnv`
 - No compatibility concerns across Unix shells
@@ -302,6 +314,7 @@ $ docker run -v "$WORKTREE_PATH:/app" myimage
 ### User Perception
 
 Users will perceive this as:
+
 - "Finally! This is how it should have worked from the start"
 - "This tool gets me - it removes the annoying parts"
 - "Professional quality - they thought about the actual workflow"
@@ -335,6 +348,7 @@ This creates several pain points:
 5. **Not CI/CD friendly** - Automation prefers single, idempotent commands
 
 **Current Implementation Issue:**
+
 ```go
 // cmd/wt/main.go:83-86
 path, err := core.FindWorktree(branch)
@@ -440,12 +454,15 @@ func init() {
 ### Implementation Plan
 
 #### Phase 1: Core Implementation (2 hours)
+
 1. Add `runCmd` to `cmd/wt/main.go` (30-40 lines)
 2. Wire up `--from` flag (already exists, reuse logic)
 3. Test manually with various scenarios
 
 #### Phase 2: Testing (1 hour)
+
 1. Add integration test in `test/integration_test.go`:
+
    ```go
    t.Run("run command creates and executes", func(t *testing.T) {
        // Test that 'wt run' creates worktree if missing
@@ -455,6 +472,7 @@ func init() {
    ```
 
 #### Phase 3: Documentation (1 hour)
+
 1. Create `docs/user/api-references/run.md`
 2. Update `docs/user/api-references/index.md` to include run
 3. Add examples to `docs/user/guides/multi-agent-workflow.md`
@@ -472,6 +490,7 @@ func init() {
 ### Example Usage Scenarios
 
 #### Scenario 1: Single Command Testing
+
 ```bash
 # Current (2 commands, need to think):
 $ wt feature/api-v2                    # Ensure exists
@@ -482,6 +501,7 @@ $ wt run feature/api-v2 -- npm test    # Just works!
 ```
 
 #### Scenario 2: Parallel Multi-Agent Builds
+
 ```bash
 # Run builds in parallel for multiple features
 $ wt run feature/auth -- npm run build &
@@ -493,6 +513,7 @@ $ wait
 ```
 
 #### Scenario 3: CI/CD Pipeline
+
 ```yaml
 # .github/workflows/test.yml
 jobs:
@@ -507,6 +528,7 @@ jobs:
 ```
 
 #### Scenario 4: One-liner Scripts
+
 ```bash
 #!/bin/bash
 # test-all-features.sh
@@ -519,30 +541,35 @@ done
 ### Why This is Priority #2
 
 **Impact: 9/10**
+
 - Reduces cognitive load significantly
 - Perfect for automation and scripting
 - Makes the tool more intuitive for new users
 - Enables powerful multi-agent workflows
 
 **Pragmatism: 10/10**
+
 - Only ~40 lines of code
 - Combines two existing, battle-tested functions
 - No changes to core business logic
 - Implementation is straightforward
 
 **Risk: 1/10**
+
 - Very low risk: just combining existing functions
 - EnsureWorktree is already well-tested
 - Command execution logic copied from existing exec command
 - Main risk is ensuring flag compatibility
 
 **User Adoption: 9/10**
+
 - Immediately obvious value proposition
 - Reduces "do I need to create first?" mental overhead
 - Scripts become simpler and more reliable
 - Natural evolution of the tool's interface
 
 **Confidence: 95%**
+
 - Straightforward implementation
 - Leverages existing, tested code paths
 - Similar patterns exist in other tools
@@ -551,6 +578,7 @@ done
 ### User Perception
 
 Users will perceive this as:
+
 - "This is exactly what I wanted from `exec`"
 - "Makes scripting so much easier"
 - "The tool is reading my mind - just do what I mean"
@@ -583,6 +611,7 @@ This provides no context about worktree state. Users cannot answer these questio
 - Which is my current worktree (based on cwd)?
 
 **Pain Points:**
+
 - Managing 5+ worktrees requires manual inspection of each
 - No visibility into "what needs attention"
 - Users run `git status` manually in each worktree
@@ -618,6 +647,7 @@ Legend:
 ```
 
 **Plain Output Mode (for scripts):**
+
 ```bash
 $ wt --plain
 # or: wt status --plain
@@ -991,28 +1021,33 @@ func init() {
 ### Implementation Plan
 
 #### Phase 1: Git Status Functions (2 hours)
+
 1. Add `GetAheadBehind` to `internal/git/git.go`
 2. Add `GetLastCommitTime` to `internal/git/git.go`
 3. Test git functions in isolation
 
 #### Phase 2: Core Status Logic (2 hours)
+
 1. Add `WorktreeStatus` struct to `internal/core/core.go`
 2. Implement `GetWorktreeStatuses` function
 3. Test with various worktree configurations
 
 #### Phase 3: Rich UI Rendering (2 hours)
+
 1. Add `RenderWorktreeStatus` to `internal/ui/ui.go`
 2. Use lipgloss for colors (already in dependencies)
 3. Respect NO_COLOR environment variable
 4. Test color output across terminals
 
 #### Phase 4: CLI Integration (1 hour)
+
 1. Update root command to use rich output by default
 2. Add `--plain` flag for script compatibility
 3. Add optional `wt status` alias command
 4. Test backwards compatibility
 
 #### Phase 5: Documentation (1 hour)
+
 1. Create `docs/user/api-references/status.md`
 2. Update quickstart guide with status examples
 3. Add screenshots to documentation
@@ -1031,6 +1066,7 @@ func init() {
 ### Example Usage Scenarios
 
 #### Scenario 1: Daily Status Check
+
 ```bash
 $ wt
 Worktrees (4 total, 1 needs attention):
@@ -1042,12 +1078,14 @@ Worktrees (4 total, 1 needs attention):
 ```
 
 **User sees immediately:**
+
 - Currently in main worktree
 - feature/auth needs attention (dirty)
 - feature/api can be pruned (merged)
 - All worktrees' sync status with remote
 
 #### Scenario 2: Scripting (Plain Output)
+
 ```bash
 $ wt --plain | while IFS=$'\t' read -r branch path; do
     echo "Checking $branch..."
@@ -1056,6 +1094,7 @@ done
 ```
 
 #### Scenario 3: Before Pruning
+
 ```bash
 $ wt status
 # See which worktrees have [merged] indicator
@@ -1066,30 +1105,35 @@ $ wt prune
 ### Why This is Priority #3
 
 **Impact: 8/10**
+
 - Significantly improves visibility into worktree state
 - Reduces manual `git status` checking
 - Makes prune decisions more informed
 - Helps identify what needs attention
 
 **Pragmatism: 7/10**
+
 - Moderate implementation: ~6 hours total
 - Leverages existing dependencies (lipgloss)
 - Git operations are well-understood
 - Main complexity: aggregating multiple git queries
 
 **Risk: 3/10**
+
 - Low risk of breakage (rich output is additive)
 - Git parsing is battle-tested
 - Performance concern: multiple git operations per worktree
 - Mitigation: Add `--plain` for fast, simple output
 
 **User Adoption: 8/10**
+
 - Immediately noticeable improvement
 - Visual appeal makes tool feel modern
 - Plain output preserves scriptability
 - Optional `status` command for discoverability
 
 **Confidence: 90%**
+
 - Git operations are well-understood
 - Lipgloss is mature and widely used
 - Main uncertainty: performance with many worktrees (>20)
@@ -1098,6 +1142,7 @@ $ wt prune
 ### User Perception
 
 Users will perceive this as:
+
 - "Wow, this looks professional and modern"
 - "Finally I can see what's going on at a glance"
 - "This feels like a real worktree manager, not just a wrapper"
@@ -1116,6 +1161,7 @@ This elevates `wt` from "useful CLI" to "polished, production-ready tool."
 Different teams and projects have specialized workflows beyond `wt`'s built-in capabilities:
 
 **Common Use Cases:**
+
 - Send Slack notifications when worktrees are created
 - Update project management systems (Jira, Linear)
 - Validate branch naming conventions before creation
@@ -1127,12 +1173,14 @@ Different teams and projects have specialized workflows beyond `wt`'s built-in c
 
 **Current Limitation:**
 The only extension point is `postCreateCmd`, which:
+
 - Only runs after creation (no pre-creation validation)
 - Cannot prevent creation on validation failure
 - Has no hooks for remove/prune operations
 - Cannot access context about the operation
 
 This forces teams to:
+
 - Wrap `wt` with custom scripts
 - Fork the project to add custom logic
 - Accept reduced automation capabilities
@@ -1175,6 +1223,7 @@ Add a comprehensive lifecycle hooks system via `.wt.config.json`:
 ### Hook Types and Behavior
 
 #### Pre-hooks (Validation)
+
 - Execute **before** the operation
 - Non-zero exit code **aborts** the operation
 - Can access operation context via environment variables
@@ -1182,6 +1231,7 @@ Add a comprehensive lifecycle hooks system via `.wt.config.json`:
 - Use cases: validation, permissions checks, external system queries
 
 #### Post-hooks (Notification/Cleanup)
+
 - Execute **after** the operation completes successfully
 - Errors are logged but don't fail the operation
 - Can access result context via environment variables
@@ -1191,6 +1241,7 @@ Add a comprehensive lifecycle hooks system via `.wt.config.json`:
 ### Environment Variables Available to Hooks
 
 All hooks receive:
+
 ```bash
 WT_HOOK              # Hook name (pre-create, post-create, etc.)
 WT_BRANCH            # Branch name
@@ -1201,6 +1252,7 @@ WT_OPERATION         # Operation type (create, remove, prune)
 ```
 
 Additional per-hook:
+
 ```bash
 # pre-create / post-create
 WT_IS_NEW_BRANCH     # "true" if creating new branch, "false" if checking out existing
@@ -1447,30 +1499,35 @@ func init() {
 ### Implementation Plan
 
 #### Phase 1: Config and Engine (3 hours)
+
 1. Extend Config struct with Hooks
 2. Implement ExecuteHooks function
 3. Add timeout handling
 4. Test hook execution in isolation
 
 #### Phase 2: Integration (3 hours)
+
 1. Integrate pre/post-create hooks into EnsureWorktree
 2. Integrate pre/post-remove hooks into RemoveWorktree
 3. Integrate pre/post-prune hooks into PruneWorktrees
 4. Maintain backwards compatibility with postCreateCmd
 
 #### Phase 3: CLI and Safety (2 hours)
+
 1. Add `--skip-hooks` flag to all commands
 2. Add environment variable support (WT_SKIP_HOOKS)
 3. Test hook abortion scenarios
 4. Test timeout scenarios
 
 #### Phase 4: Documentation (2 hours)
+
 1. Create `docs/user/guides/hooks.md` with examples
 2. Update configuration reference
 3. Add security warnings
 4. Create example hook scripts
 
 #### Phase 5: Examples and Testing (2 hours)
+
 1. Create example hooks in `examples/hooks/`
 2. Add integration tests for hook execution
 3. Test pre-hook abortion
@@ -1489,6 +1546,7 @@ func init() {
 ### Example Hook Scripts
 
 #### Pre-create: Validate Branch Name
+
 ```bash
 #!/bin/bash
 # .wt/hooks/validate-branch-name.sh
@@ -1507,6 +1565,7 @@ exit 0
 ```
 
 #### Post-create: Notify Slack
+
 ```bash
 #!/bin/bash
 # .wt/hooks/notify-slack.sh
@@ -1528,6 +1587,7 @@ curl -X POST "$SLACK_WEBHOOK" \
 ```
 
 #### Pre-remove: Check Open PRs
+
 ```bash
 #!/bin/bash
 # .wt/hooks/check-open-prs.sh
@@ -1545,6 +1605,7 @@ exit 0
 ```
 
 #### Post-prune: Update Dashboard
+
 ```bash
 #!/bin/bash
 # .wt/hooks/update-dashboard.sh
@@ -1560,6 +1621,7 @@ curl -X POST "$API_URL/prune" \
 ### Usage Examples
 
 #### Basic Configuration
+
 ```json
 {
   "hooks": {
@@ -1571,6 +1633,7 @@ curl -X POST "$API_URL/prune" \
 ```
 
 #### Bypassing Hooks
+
 ```bash
 # Skip all hooks in emergency
 $ wt remove feature/broken --skip-hooks
@@ -1580,6 +1643,7 @@ $ WT_SKIP_HOOKS=1 wt remove feature/broken
 ```
 
 #### Debugging Hooks
+
 ```bash
 # Hooks print their output to stderr
 $ wt feature/test
@@ -1593,30 +1657,35 @@ $ wt feature/test
 ### Why This is Priority #4
 
 **Impact: 7/10**
+
 - Unlocks powerful customization
 - Enables enterprise workflows
 - Future-proofs the tool
 - But: Only needed by power users and teams
 
 **Pragmatism: 6/10**
+
 - Moderate complexity (~12 hours implementation)
 - Requires careful error handling
 - Need to handle timeouts and security
 - Good pattern to follow (Git hooks, npm scripts)
 
 **Risk: 4/10**
+
 - Medium risk: executing arbitrary user code
 - Timeout handling adds complexity
 - Backwards compatibility with postCreateCmd
 - Security: hooks run with user's permissions
 
 **User Adoption: 6/10**
+
 - Power users will love it
 - Most users won't use it initially
 - Requires scripting knowledge
 - Discoverability: needs good documentation
 
 **Confidence: 85%**
+
 - Command execution is well-understood
 - Main uncertainty: edge cases in timeout handling
 - Risk: users writing complex hooks that break
@@ -1625,12 +1694,14 @@ $ wt feature/test
 ### User Perception
 
 Power users and teams will perceive this as:
+
 - "Now it's a real platform, not just a tool"
 - "We can integrate it into our workflows"
 - "This is production-ready and enterprise-friendly"
 - "The developers thought about extensibility"
 
 Casual users will perceive it as:
+
 - "Nice to have the option if I need it"
 - "Shows the tool is mature and well-designed"
 
@@ -1654,18 +1725,21 @@ ValidArgs: []string{"zsh"},
 This creates adoption barriers:
 
 **Bash Users:**
+
 - Most Linux distributions default to bash
 - Many CI/CD environments use bash
 - Large corporate environments standardize on bash
 - Missing completions feel like incomplete tool
 
 **Fish Users:**
+
 - Growing popularity among developers (modern shell)
 - Superior completion and suggestion system
 - Active community especially on macOS
 - Expect all modern tools to support fish
 
 **Impact:**
+
 - New users hit immediate friction: "completions don't work"
 - Tool feels unpolished or abandoned
 - Users on non-zsh systems are second-class citizens
@@ -1803,37 +1877,45 @@ func init() {
 ### Implementation Plan
 
 #### Phase 1: Core Implementation (30 minutes)
+
 1. Update `completionCmd` ValidArgs to include bash and fish
 2. Add GenBashCompletion and GenFishCompletion calls
 3. Update Long description with instructions for all shells
 
 #### Phase 2: Dynamic Completions (1 hour)
+
 1. Add ValidArgsFunction to root command
 2. Add ValidArgsFunction to exec command
 3. Add ValidArgsFunction to remove command
 4. Test completions with various branch names
 
 #### Phase 3: Testing (30 minutes)
+
 1. Test bash completions:
+
    ```bash
    source <(wt completion bash)
    wt feat<TAB>  # Should complete with feature/ branches
    ```
 
 2. Test fish completions:
+
    ```fish
    wt completion fish > ~/.config/fish/completions/wt.fish
    wt feat<TAB>  # Should show suggestions
    ```
 
 3. Test zsh completions (ensure still working):
+
    ```zsh
    source <(wt completion zsh)
    wt feat<TAB>  # Should complete
    ```
 
 #### Phase 4: Distribution (30 minutes)
+
 1. Update Homebrew formula to install all completion files:
+
    ```ruby
    def install
      bin.install "wt"
@@ -1848,6 +1930,7 @@ func init() {
 2. Update quickstart documentation
 
 #### Phase 5: Documentation (30 minutes)
+
 1. Update `docs/user/guides/quickstart.md` with all three shells
 2. Update README installation section
 3. Add completion troubleshooting section
@@ -1863,6 +1946,7 @@ func init() {
 ### Example User Experience
 
 #### Bash Completion
+
 ```bash
 $ wt completion bash > ~/.wt-completion.bash
 $ echo 'source ~/.wt-completion.bash' >> ~/.bashrc
@@ -1882,6 +1966,7 @@ npm  npmrc  npm-doctor  npm-install  npm-test  ...
 ```
 
 #### Fish Completion
+
 ```fish
 $ wt completion fish > ~/.config/fish/completions/wt.fish
 # Restart shell
@@ -1903,6 +1988,7 @@ feature/payments  Created 3 days ago, payment integration
 Fish shows additional context in suggestions!
 
 #### Zsh Completion (Existing)
+
 ```zsh
 $ wt <TAB>
 completion  -- generate completion script
@@ -1919,30 +2005,35 @@ feature/auth  feature/api  feature/payments
 ### Why This is Priority #5
 
 **Impact: 6/10**
+
 - Removes adoption barrier for bash/fish users
 - Improves first-time user experience
 - Makes tool feel complete and professional
 - But: Most users can live without completions
 
 **Pragmatism: 10/10**
+
 - Extremely easy: cobra does all the work
 - ~2 hours total implementation time
 - Near-zero risk of breaking anything
 - Can be implemented in one sitting
 
 **Risk: 1/10**
+
 - Very low risk: completions are isolated feature
 - Cobra's completion generation is battle-tested
 - Worst case: completions don't work, user types full command
 - No impact on core functionality
 
 **User Adoption: 8/10**
+
 - Bash users are majority of Linux users
 - Fish users are enthusiastic and vocal
 - Completions are expected in modern CLIs
 - Missing completions is noticed immediately
 
 **Confidence: 95%**
+
 - Cobra handles complexity automatically
 - Completion generation is well-documented
 - Tested by thousands of projects using cobra
@@ -1951,17 +2042,20 @@ feature/auth  feature/api  feature/payments
 ### User Perception
 
 Users will perceive this as:
+
 - "They actually support my shell! This tool is for real"
 - "Attention to detail - they care about polish"
 - "Professional quality, ready for daily use"
 - "The developers respect all platforms equally"
 
 **bash users specifically:**
+
 - "Finally! Now I can use this on my servers"
 - "Completions work just like other tools"
 - "This is production-ready"
 
 **fish users specifically:**
+
 - "Yes! Fish support!"
 - "The suggestions are beautiful"
 - "This tool respects modern shells"
@@ -1975,19 +2069,23 @@ This is a **high-impact, low-effort** improvement that removes a common objectio
 ### Recommended Implementation Order
 
 #### Phase 1: Quick Wins (Week 1)
+
 1. **Shell cd integration** (1 hour) - Highest impact, zero risk
 2. **Bash/Fish completions** (2 hours) - Low effort, removes adoption barrier
 
 #### Phase 2: Core Enhancements (Week 2)
+
 3. **`wt run` command** (3 hours) - High value, straightforward implementation
-4. **Rich status display** (6 hours) - Visible improvement, moderate complexity
+2. **Rich status display** (6 hours) - Visible improvement, moderate complexity
 
 #### Phase 3: Advanced Features (Week 3-4)
+
 5. **Lifecycle hooks** (12 hours) - Power user feature, needs careful design
 
 ### Quick Win Justification
 
 Starting with items #1 and #5 provides:
+
 - **Immediate user gratification** - Noticeable improvements in first day
 - **Momentum builder** - Quick successes motivate further development
 - **Risk mitigation** - Low-risk changes build confidence
@@ -2007,12 +2105,14 @@ Starting with items #1 and #5 provides:
 ### How to Measure Impact
 
 #### Quantitative Metrics
+
 1. **GitHub Stars/Forks** - Growth rate after implementing features
 2. **Installation count** - Homebrew analytics (if available)
 3. **Issue reduction** - Fewer "how do I..." questions
 4. **Time to first worktree** - Onboarding friction reduction
 
 #### Qualitative Metrics
+
 1. **User feedback** - GitHub discussions, issues, Twitter mentions
 2. **Bug reports** - Quality and nature of reported issues
 3. **Community contributions** - External PRs and hook libraries
@@ -2021,22 +2121,27 @@ Starting with items #1 and #5 provides:
 #### Feature-Specific Metrics
 
 **Shell Integration (#1):**
+
 - Reduction in "how to cd?" questions
 - User testimonials about workflow improvement
 
 **wt run (#2):**
+
 - Usage analytics (if implemented)
 - Reduction in multi-step workflow issues
 
 **Rich Status (#3):**
+
 - User screenshots shared on social media
 - Reduction in "how do I check?" questions
 
 **Hooks (#4):**
+
 - Community hook libraries created
 - Enterprise adoption mentions
 
 **Completions (#5):**
+
 - Reduction in "doesn't work in bash" issues
 - Increased Linux server adoption
 
@@ -2070,11 +2175,13 @@ Starting with items #1 and #5 provides:
 ### For Shell Integration (#1)
 
 **Alternative 1: Add special flag `wt --cd <branch>`**
+
 - ❌ Rejected: Still can't change parent shell directory
 - ❌ Requires wrapper function anyway
 - ✅ Current solution: Document shell function pattern
 
 **Alternative 2: Generate separate `wtcd` binary**
+
 - ❌ Rejected: Extra binary to maintain and install
 - ❌ Confusing to have two commands
 - ✅ Current solution: Single `wt` with optional alias
@@ -2082,11 +2189,13 @@ Starting with items #1 and #5 provides:
 ### For wt run (#2)
 
 **Alternative 1: Make `exec` auto-ensure**
+
 - ❌ Rejected: Breaking change, violates principle of least surprise
 - ❌ Users expect `exec` to fail if worktree missing
 - ✅ Current solution: New command, backwards compatible
 
 **Alternative 2: Add `wt <branch> <cmd>` shorthand**
+
 - ❌ Rejected: Parsing ambiguity (branch vs command)
 - ❌ PRD explicitly excludes this (section 1.2)
 - ✅ Current solution: Explicit `run` subcommand with `--`
@@ -2094,10 +2203,12 @@ Starting with items #1 and #5 provides:
 ### For Rich Status (#3)
 
 **Alternative 1: Separate `wt status` command only**
+
 - ❌ Rejected: Discoverability issue, users won't find it
 - ✅ Modified: Rich status by default, `--plain` for scripts
 
 **Alternative 2: Use fzf for interactive selection**
+
 - ❌ Rejected: PRD explicitly excludes fzf dependency (section 1.2)
 - ❌ Adds external dependency
 - ✅ Current solution: Static rich output, scriptable
@@ -2105,11 +2216,13 @@ Starting with items #1 and #5 provides:
 ### For Hooks (#4)
 
 **Alternative 1: Plugin system with Go plugins**
+
 - ❌ Rejected: Go plugin system is fragile and platform-specific
 - ❌ Much more complex implementation
 - ✅ Current solution: Shell scripts are universal
 
 **Alternative 2: Webhooks to external services**
+
 - ❌ Rejected: Requires network, adds latency, complex auth
 - ❌ Doesn't handle pre-hooks (validation)
 - ✅ Current solution: Local scripts, synchronous execution
@@ -2117,11 +2230,13 @@ Starting with items #1 and #5 provides:
 ### For Completions (#5)
 
 **Alternative 1: Maintain custom completions for each shell**
+
 - ❌ Rejected: High maintenance burden
 - ❌ Reinventing what cobra already does
 - ✅ Current solution: Leverage cobra's built-in generators
 
 **Alternative 2: Only support zsh (status quo)**
+
 - ❌ Rejected: Creates adoption barrier
 - ❌ Bash users are majority on Linux
 - ✅ Current solution: Support all major shells
@@ -2133,26 +2248,31 @@ Starting with items #1 and #5 provides:
 Features that didn't make the top 5 but are worth noting:
 
 ### 6. Parallel Execution Across Worktrees
+
 ```bash
 wt exec --all -- npm test  # Run tests in all worktrees in parallel
 ```
 
 ### 7. Worktree Templates
+
 ```bash
 wt create feature/auth --template node-api  # Apply template
 ```
 
 ### 8. Orphaned Worktree Detection/Repair
+
 ```bash
 wt health --repair  # Auto-fix orphaned worktrees
 ```
 
 ### 9. Tmux/Terminal Integration
+
 ```bash
 wt tmux feature/auth  # Create worktree and tmux session
 ```
 
 ### 10. Interactive TUI Mode
+
 ```bash
 wt ui  # Launch terminal UI for managing worktrees
 ```
@@ -2182,6 +2302,7 @@ These 5 proposals represent the highest-value improvements to `wt` that:
 ### Expected Outcome
 
 Implementing all 5 proposals would:
+
 - Dramatically improve daily workflow ergonomics
 - Remove adoption barriers (shell support)
 - Provide visibility into worktree state

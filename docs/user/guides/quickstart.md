@@ -238,6 +238,7 @@ Two branches map to the same directory name. Example:
 - `feature/user_api` → `feature-user-api` (collision)
 
 **Error message:**
+
 ```
 Error: collision: branch "feature/user_api" maps to same directory "feature-user-api" as existing worktree for branch "feature/user-api"
 ```

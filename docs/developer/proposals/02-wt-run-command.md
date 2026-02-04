@@ -1,6 +1,6 @@
 ⚠️ **NOT IMPLEMENTED**
 
-This document describes a proposed feature that is **not yet implemented** in `wt`. 
+This document describes a proposed feature that is **not yet implemented** in `wt`.
 For currently available features, see the [API Reference](../../user/api-references/index.md).
 
 ---

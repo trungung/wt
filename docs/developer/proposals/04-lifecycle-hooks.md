@@ -1,6 +1,6 @@
 ⚠️ **NOT IMPLEMENTED**
 
-This document describes a proposed feature that is **not yet implemented** in `wt`. 
+This document describes a proposed feature that is **not yet implemented** in `wt`.
 For currently available features, see the [API Reference](../../user/api-references/index.md).
 
 ---
@@ -41,12 +41,14 @@ Different teams and projects have specialized workflows beyond `wt`'s built-in c
 ### Current Limitation
 
 The only extension point is `postCreateCmd`, which:
+
 - Only runs after creation (no pre-creation validation)
 - Cannot prevent creation on validation failure
 - Has no hooks for remove/prune operations
 - Cannot access context about the operation
 
 This forces teams to:
+
 - Wrap `wt` with custom scripts
 - Fork the project to add custom logic
 - Accept reduced automation capabilities
@@ -112,7 +114,7 @@ Add a comprehensive lifecycle hooks system via `.wt.config.json`:
 
 ## Environment Variables Available to Hooks
 
-### All hooks receive:
+### All hooks receive
 
 ```bash
 WT_HOOK              # Hook name (pre-create, post-create, etc.)
@@ -123,7 +125,7 @@ WT_BASE_BRANCH       # Base branch (for create operations with --from)
 WT_OPERATION         # Operation type (create, remove, prune)
 ```
 
-### Additional per-hook:
+### Additional per-hook
 
 ```bash
 # pre-create / post-create
@@ -583,14 +585,14 @@ $ wt feature/test
 
 ## User Perception
 
-### Power users and teams will perceive this as:
+### Power users and teams will perceive this as
 
 - "Now it's a real platform, not just a tool"
 - "We can integrate it into our workflows"
 - "This is production-ready and enterprise-friendly"
 - "The developers thought about extensibility"
 
-### Casual users will perceive it as:
+### Casual users will perceive it as
 
 - "Nice to have the option if I need it"
 - "Shows the tool is mature and well-designed"
@@ -671,7 +673,7 @@ fi
 
 ## Future Enhancements
 
-### Potential additions (not in scope for v1):
+### Potential additions (not in scope for v1)
 
 - Hook templates library
 - Hook validation/linting

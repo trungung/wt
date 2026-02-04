@@ -51,6 +51,7 @@ brews:
     repository:
       owner: trungung
       name: homebrew-wt
+    directory: Formula
     install: |
       bin.install "wt"
       generate_completions_from_executable(bin/"wt", "completion")

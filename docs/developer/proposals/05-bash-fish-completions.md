@@ -215,18 +215,21 @@ func init() {
 ### Phase 3: Testing (30 minutes)
 
 **Test bash completions:**
+
 ```bash
 source <(wt completion bash)
 wt feat<TAB>  # Should complete with feature/ branches
 ```
 
 **Test fish completions:**
+
 ```fish
 wt completion fish > ~/.config/fish/completions/wt.fish
 wt feat<TAB>  # Should show suggestions
 ```
 
 **Test zsh completions (ensure still working):**
+
 ```zsh
 source <(wt completion zsh)
 wt feat<TAB>  # Should complete
@@ -367,20 +370,20 @@ feature/auth  feature/api  feature/payments
 
 ## User Perception
 
-### General users will perceive this as:
+### General users will perceive this as
 
 - "They actually support my shell! This tool is for real"
 - "Attention to detail - they care about polish"
 - "Professional quality, ready for daily use"
 - "The developers respect all platforms equally"
 
-### Bash users specifically:
+### Bash users specifically
 
 - "Finally! Now I can use this on my servers"
 - "Completions work just like other tools"
 - "This is production-ready"
 
-### Fish users specifically:
+### Fish users specifically
 
 - "Yes! Fish support!"
 - "The suggestions are beautiful"
@@ -449,9 +452,10 @@ This is a **high-impact, low-effort** improvement that removes a common objectio
 
 ## Future Enhancements
 
-### Potential improvements (not in scope for initial implementation):
+### Potential improvements (not in scope for initial implementation)
 
 1. **Rich completions with descriptions:**
+
    ```bash
    $ wt <branch><TAB>
    feature/auth     -- Authentication system (created 2d ago)

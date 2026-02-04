@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-02-04
+
+### Fixed
+
+- Homebrew tap publishing now writes to `Formula/wt.rb`
+- Release workflow uses `GORELEASER_GITHUB_TOKEN` for cross-repo updates
+- Markdown linting now passes consistently for proposal docs
+
 ## [0.0.3] - 2026-02-04
 
 ### Fixed
@@ -89,7 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Concurrency tests for file locking mechanism
 - Health check validation tests
 
-[Unreleased]: https://github.com/trungung/wt/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/trungung/wt/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/trungung/wt/releases/tag/v0.0.4
 [0.0.3]: https://github.com/trungung/wt/releases/tag/v0.0.3
 [0.0.2]: https://github.com/trungung/wt/releases/tag/v0.0.2
 [0.0.1]: https://github.com/trungung/wt/releases/tag/v0.0.1
