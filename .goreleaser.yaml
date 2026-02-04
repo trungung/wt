@@ -42,3 +42,17 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+
+brews:
+  - name: wt
+    homepage: "https://github.com/trungung/wt"
+    description: "Fast, branch-centric git worktree manager"
+    license: "MIT"
+    repository:
+      owner: trungung
+      name: homebrew-wt
+    install: |
+      bin.install "wt"
+      generate_completions_from_executable(bin/"wt", "completion")
+    test: |
+      system "#{bin}/wt", "--version"

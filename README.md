@@ -31,12 +31,14 @@ See [Multi-Agent Workflows](docs/user/guides/multi-agent-workflow.md) for detail
 
 ### 1. Install
 
-**Recommended** - Install via Homebrew (handles PATH + completion):
+**Recommended** - Install via Homebrew (handles PATH + completions):
 
 ```bash
 brew tap trungung/wt
 brew install wt
 ```
+
+Homebrew installs completion files automatically, but you still need `eval "$(wt shell-setup)"` to enable the `wt cd` wrapper.
 
 **Alternative** - Install via Go:
 
@@ -46,7 +48,7 @@ go install github.com/trungung/wt/cmd/wt@latest
 
 For binary downloads (macOS/Linux), see [GitHub Releases](https://github.com/trungung/wt/releases).
 
-If installing via Go or binary, add `wt` to your PATH (see quick PATH snippet in the Quickstart) and follow [Shell Completions](docs/user/guides/quickstart.md#shell-completions) to enable tab completion.
+If installing via Go or binary, add `wt` to your PATH (see quick PATH snippet in the Quickstart) and follow [Shell Setup](docs/user/guides/quickstart.md#shell-setup-completions--navigation) to enable completions and `wt cd`.
 
 ### 2. Initialize
 
@@ -62,9 +64,9 @@ Create a worktree for a new branch, execute commands inside it, and remove it wh
 
 | Command                               | Action                                         |
 | :------------------------------------ | :--------------------------------------------- |
-| `wt feature/payment`                  | Create worktree at `./repo.wt/feature-payment` |
-| `wt exec feature/payment -- npm test` | Run command in the worktree directory          |
-| `wt prune`                            | Automatically remove merged worktrees          |
+| `wt feature/payment`                        | Create worktree at `./repo.wt/feature-payment` |
+| `(cd "$(wt feature/payment)" && npm test)` | Run command in the worktree directory          |
+| `wt prune`                                  | Automatically remove merged worktrees          |
 
 ### 4. Easy Navigation (Recommended)
 
@@ -72,8 +74,7 @@ Set up seamless navigation to worktrees:
 
 ```bash
 # One-time setup
-wt shell-setup zsh >> ~/.zshrc
-source ~/.zshrc
+eval "$(wt shell-setup)"
 
 # Now navigate easily
 wt cd feature/new-auth    # Creates worktree if needed and changes directory

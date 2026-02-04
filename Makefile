@@ -1,4 +1,4 @@
-.PHONY: lint lint-go lint-md format-md test ci-check build release-check help
+.PHONY: lint lint-go lint-md format-md test ci-check build release-check release-dry-run help
 
 # Default target
 all: lint build test
@@ -31,4 +31,7 @@ build: ## Build the project
 	go build -v ./cmd/wt
 
 release-check: ## Simulate release pipeline to verify cross-platform builds
+	goreleaser release --snapshot --clean
+
+release-dry-run: ## Dry-run GoReleaser release locally
 	goreleaser release --snapshot --clean

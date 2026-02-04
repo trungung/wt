@@ -202,7 +202,7 @@ $ wt cd feature/new-auth
 
 ### Homebrew Users
 
-Homebrew sets up PATH automatically, but you still need to add `eval "$(wt shell-setup)"` to get completions and `wt cd`.
+Homebrew installs the completion files automatically, but you still need to add `eval "$(wt shell-setup)"` to enable the `wt cd` wrapper.
 
 ## Next Steps
 

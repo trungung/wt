@@ -4,13 +4,14 @@ This document describes the process for releasing new versions of `wt`.
 
 ## Overview
 
-`wt` uses GoReleaser for automated releases. The release process is triggered by pushing git tags to GitHub. GitHub Actions builds binaries for multiple platforms and creates a GitHub release automatically.
+`wt` uses GoReleaser for automated releases. The release process is triggered by pushing git tags to GitHub. GitHub Actions builds binaries for multiple platforms, creates a GitHub release, and updates the Homebrew tap formula automatically.
 
 ## Prerequisites
 
 - Write access to `github.com/trungung/wt`
 - GoReleaser configured (`.goreleaser.yaml`)
 - GitHub Actions workflow configured (`.github/workflows/release.yml`)
+- A GitHub PAT stored as `GORELEASER_GITHUB_TOKEN` (required to update `trungung/homebrew-wt`)
 
 ## Pre-Release Checklist
 
@@ -36,6 +37,11 @@ var version = "0.0.1"  // Update this
 
 - [ ] `.goreleaser.yaml` is correct
 - [ ] `.github/workflows/release.yml` is correct
+
+### 3.1 Homebrew Automation
+
+- [ ] `GORELEASER_GITHUB_TOKEN` secret is set in `trungung/wt`
+- [ ] Token has access to `trungung/homebrew-wt`
 
 ### 4. Testing
 
@@ -130,6 +136,7 @@ GitHub Actions automatically:
 5. Generates checksums.txt
 6. Creates GitHub release
 7. Uploads artifacts
+8. Updates Homebrew formula in `trungung/homebrew-wt`
 
 Monitor progress: `https://github.com/trungung/wt/actions`
 
@@ -155,6 +162,13 @@ tar xzf wt.tar.gz
 ### Update Documentation (if needed)
 
 If release went smoothly, update any references in docs to point to new version.
+
+### Homebrew Tap Verification (Automated)
+
+GoReleaser commits the updated formula to `trungung/homebrew-wt` automatically. You can verify:
+
+1. The formula was updated: `https://github.com/trungung/homebrew-wt/commits/main`
+2. Homebrew formula tests passed: `https://github.com/trungung/homebrew-wt/actions`
 
 ### Announce Release
 
@@ -230,6 +244,7 @@ The `.github/workflows/release.yml` workflow:
 - Triggers on: `push tags: 'v*'`
 - Runs GoReleaser: `release --clean`
 - Configured in: `.goreleaser.yaml`
+- Uses `GORELEASER_GITHUB_TOKEN` to push to `trungung/homebrew-wt`
 
 **Platform targets:**
 
