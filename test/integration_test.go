@@ -82,6 +82,19 @@ func TestIntegration(t *testing.T) {
 		return strings.TrimSpace(string(out))
 	}
 
+	// Helper to run wt from a specific directory
+	runWtIn := func(dir string, args ...string) string {
+		cmd := exec.Command(binPath, args...)
+		cmd.Dir = dir
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatalf("wt %v failed in %s: %s: %v", args, dir, string(out), err)
+		}
+		return strings.TrimSpace(string(out))
+	}
+
+	var featureXPath string
+
 	// Test 1: Default branch behavior
 	t.Run("Default branch", func(t *testing.T) {
 		got := runWt("main")
@@ -96,6 +109,7 @@ func TestIntegration(t *testing.T) {
 		// First create the branch to make it easier for v1
 		runGit(t, repoPath, "branch", "feature/x")
 		got := runWt("feature/x")
+		featureXPath = got
 
 		wantSuffix := "repo.wt/feature-x"
 		if !strings.HasSuffix(got, wantSuffix) {
@@ -104,6 +118,18 @@ func TestIntegration(t *testing.T) {
 
 		if _, err := os.Stat(got); os.IsNotExist(err) {
 			t.Errorf("directory %s was not created", got)
+		}
+	})
+
+	// Test 2.1: Default branch from inside worktree resolves to main worktree
+	t.Run("Default branch from worktree", func(t *testing.T) {
+		if featureXPath == "" {
+			t.Fatalf("expected feature/x worktree to be created before test")
+		}
+		got := runWtIn(featureXPath, "main")
+		want, _ := filepath.Abs(repoPath)
+		if got != want {
+			t.Errorf("expected %s, got %s", want, got)
 		}
 	})
 

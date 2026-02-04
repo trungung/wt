@@ -80,7 +80,11 @@ func FindWorktree(branch string) (string, error) {
 
 	// Case: Default branch is the repo root
 	if branch == env.DefaultBranch {
-		return env.Root, nil
+		worktrees, err := git.ListWorktrees()
+		if err != nil || len(worktrees) == 0 {
+			return env.Root, nil
+		}
+		return filepath.Clean(worktrees[0].Path), nil
 	}
 
 	worktrees, err := git.ListWorktrees()
