@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2026-02-04
+
+### Fixed
+
+- Default branch resolution now always returns the primary worktree path
+
 ## [0.0.2] - 2026-02-04
 
 ### Added
@@ -83,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Concurrency tests for file locking mechanism
 - Health check validation tests
 
-[Unreleased]: https://github.com/trungung/wt/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/trungung/wt/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/trungung/wt/releases/tag/v0.0.3
 [0.0.2]: https://github.com/trungung/wt/releases/tag/v0.0.2
 [0.0.1]: https://github.com/trungung/wt/releases/tag/v0.0.1
