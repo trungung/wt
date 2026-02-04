@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-02-04
+
+### Added
+
+- `wt shell-setup`: One-line shell wrapper + completion setup (zsh, bash, fish)
+- Bash and fish completion support via `wt completion`
+- Release automation for Homebrew tap updates via GoReleaser
+
+### Changed
+
+- Removed `wt exec` command (security and maintenance simplification)
+- `wt remove --force` short flag is now `-f`
+- Documentation updated to match new shell setup and completion flow
+
+### Security
+
+- Prevent path traversal when copying worktree files
+- Block symlink escapes in copy operations
+- Config file permissions tightened to 0600
+
+### Testing
+
+- Added tests for empty post-create commands and branch name regex performance
+
 ## [0.0.1] - 2025-01-06
 
 ### Added
@@ -59,5 +83,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Concurrency tests for file locking mechanism
 - Health check validation tests
 
-[Unreleased]: https://github.com/trungung/wt/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/trungung/wt/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/trungung/wt/releases/tag/v0.0.2
 [0.0.1]: https://github.com/trungung/wt/releases/tag/v0.0.1
